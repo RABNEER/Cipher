@@ -1,0 +1,21 @@
+1400,TELEMARKETING_140,6,TRAI registered telemarketing prefix 1400xx
+1401,TELEMARKETING_140,6,TRAI registered telemarketing prefix 1401xx
+1402,TELEMARKETING_140,6,TRAI registered telemarketing prefix 1402xx
+1403,TELEMARKETING_140,6,TRAI registered telemarketing prefix 1403xx
+1404,TELEMARKETING_140,6,TRAI registered telemarketing prefix 1404xx
+1405,TELEMARKETING_140,6,TRAI registered telemarketing prefix 1405xx
+1406,TELEMARKETING_140,6,TRAI registered telemarketing prefix 1406xx
+1407,TELEMARKETING_140,6,TRAI registered telemarketing prefix 1407xx
+1408,TELEMARKETING_140,6,TRAI registered telemarketing prefix 1408xx
+1409,TELEMARKETING_140,6,TRAI registered telemarketing prefix 1409xx
++92,INTERNATIONAL_SUSPICIOUS,10,Pakistan international country code high scam frequency
++1900,INTERNATIONAL_SUSPICIOUS,9,US premium rate fraud number prefix
++44700,INTERNATIONAL_SUSPICIOUS,9,UK personal number premium rate fraud prefix
++234,INTERNATIONAL_SUSPICIOUS,9,Nigeria international country code high scam frequency
++880,INTERNATIONAL_SUSPICIOUS,8,Bangladesh international wangiri ping call prefix
++254,INTERNATIONAL_SUSPICIOUS,8,Kenya international ping call prefix
++93,INTERNATIONAL_SUSPICIOUS,9,Afghanistan international country code
++63,INTERNATIONAL_SUSPICIOUS,7,Philippines international roaming scam prefix
++911800,SPOOFED,10,Spoofed Bank Helpline (+91 prefix before 1800 invalid toll-free format)
+1800_INVALID_LEN,SPOOFED,9,Spoofed Bank Helpline toll-free number with length not equal to 11
++910000000000,SPOOFED,10,Invalid all-zero caller ID spoof

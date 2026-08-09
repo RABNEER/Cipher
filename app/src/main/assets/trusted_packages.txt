@@ -1,0 +1,141 @@
+com.phonepe.app,PhonePe,FINANCE
+net.one97.paytm,Paytm,FINANCE
+com.google.android.apps.nbu.paisa.user,Google Pay,FINANCE
+org.altruist.bhim,BHIM UPI,FINANCE
+com.cred.pay,CRED,FINANCE
+in.amazon.mShop.android.shopping,Amazon India,SHOPPING
+com.flipkart.android,Flipkart,SHOPPING
+com.myntra.android,Myntra,SHOPPING
+com.meesho.supply,Meesho,SHOPPING
+com.zomato.ordering,Zomato,FOOD
+in.swiggy.android,Swiggy,FOOD
+com.blinkit.consumer,Blinkit,GROCERY
+com.zepto.consumer,Zepto,GROCERY
+com.sbi.lotusintouch,SBI YONO,FINANCE
+com.csam.icici.bank.imobile,ICICI iMobile,FINANCE
+com.snapwork.hdfc,HDFC MobileBanking,FINANCE
+com.axis.mobile,Axis Mobile,FINANCE
+com.kotak.mbanking,Kotak 811,FINANCE
+com.application.zest,PNB ONE,FINANCE
+com.bankofbaroda.mconnect,bob World,FINANCE
+com.canarabank.ai1,Canara ai1,FINANCE
+com.unionbank.online,Union Bank Vyom,FINANCE
+com.idfcfirstbank.banking,IDFC FIRST Bank,FINANCE
+com.yesbank.mbanking,YES BANK iris,FINANCE
+com.indusind.indie,IndusInd INDIE,FINANCE
+com.rblbank.mobank,RBL MoBank,FINANCE
+com.bandhan.mBanking,Bandhan Bank,FINANCE
+com.federalbank.fedmobile,FedMobile,FINANCE
+com.sib.sibmirror,SIB Mirror+,FINANCE
+com.kvb.mobilebanking,KVB DLite,FINANCE
+in.gov.uidai.mAadhaarPlus,mAadhaar,GOVT
+com.nic.digilocker,DigiLocker,GOVT
+com.umang.app,UMANG,GOVT
+in.gov.epfindia.epfo,EPFO Mobile,GOVT
+in.gov.incometax.efiling,ITR e-Filing,GOVT
+com.cris.icms.inquiry,IRCTC Rail Connect,GOVT
+com.mparivahan,mParivahan,GOVT
+in.gov.passport,Passport Seva,GOVT
+in.gov.nvsp,Voter Helpline,GOVT
+com.jio.myjio,MyJio,TELECOM
+com.myairtelapp,Airtel Thanks,TELECOM
+com.vodafoneindia.selfcare,Vi App,TELECOM
+com.bsnl.selfcare,My BSNL,TELECOM
+com.google.android.gms,Google Play Services,SYSTEM
+com.google.android.googlequicksearchbox,Google Search,SYSTEM
+com.google.android.youtube,YouTube,MEDIA
+com.google.android.apps.maps,Google Maps,UTILITY
+com.google.android.dialer,Phone by Google,COMMUNICATION
+com.google.android.messaging,Messages by Google,COMMUNICATION
+com.android.chrome,Google Chrome,UTILITY
+com.android.settings,Android Settings,SYSTEM
+com.android.systemui,System UI,SYSTEM
+com.android.vending,Google Play Store,SYSTEM
+com.whatsapp,WhatsApp,COMMUNICATION
+org.telegram.messenger,Telegram,COMMUNICATION
+com.instagram.android,Instagram,SOCIAL
+com.facebook.katana,Facebook,SOCIAL
+com.twitter.android,X Twitter,SOCIAL
+com.linkedin.android,LinkedIn,SOCIAL
+com.snapchat.android,Snapchat,SOCIAL
+com.spotify.music,Spotify,MEDIA
+com.jio.jiocinema,JioCinema,MEDIA
+com.hotstar.android,Disney+ Hotstar,MEDIA
+com.amazon.avod.thirdpartyclient,Prime Video,MEDIA
+com.netflix.mediaclient,Netflix,MEDIA
+com.bookmyshow.android,BookMyShow,ENTERTAINMENT
+com.makemytrip,MakeMyTrip,TRAVEL
+com.goibibo,Goibibo,TRAVEL
+com.yatra.mytra,Yatra,TRAVEL
+com.ubercab,Uber,TRAVEL
+com.olacabs.customer,Ola Cabs,TRAVEL
+com.rapido.passenger,Rapido,TRAVEL
+com.redbus.in,redBus,TRAVEL
+com.sliceIt,slice,FINANCE
+com.onecard,OneCard,FINANCE
+com.lazypay,LazyPay,FINANCE
+com.simpl.android,Simpl,FINANCE
+com.mobikwik_new,MobiKwik,FINANCE
+com.freecharge.android,Freecharge,FINANCE
+com.groww.in,Groww,FINANCE
+com.zerodha.kite3,Kite Zerodha,FINANCE
+com.nextbillion.groww,Groww Stocks,FINANCE
+com.upstox.pro,Upstox,FINANCE
+com.angelmobile.android,Angel One,FINANCE
+com.5paisa.mobile,5paisa,FINANCE
+com.paytmmoney,Paytm Money,FINANCE
+com.indmoney,INDmoney,FINANCE
+com.smallcase.app,smallcase,FINANCE
+com.policybazaar,Policybazaar,FINANCE
+com.ditto.insurance,Ditto Insurance,FINANCE
+com.acko.app,ACKO,FINANCE
+com.tata1mg.user,1mg,HEALTH
+com.pharmeasy.patientapp,PharmEasy,HEALTH
+com.apollo.patient,Apollo 247,HEALTH
+com.practo.fabric,Practo,HEALTH
+com.cult.fit,cult fit,HEALTH
+com.urbancompany.im,Urban Company,SERVICES
+com.nobroker.app,NoBroker,SERVICES
+com.magicbricks,Magicbricks,SERVICES
+com.housing,Housing.com,SERVICES
+com.naukri.mobiapp,Naukri.com,CAREER
+com.foundit.app,foundit,CAREER
+com.internshala.app,Internshala,CAREER
+com.unacademy.app,Unacademy,EDUCATION
+com.byjus.thelearningapp,BYJU'S,EDUCATION
+com.vedantu.student,Vedantu,EDUCATION
+com.physicswallah.live,PhysicsWallah,EDUCATION
+com.testbook.tbapp,Testbook,EDUCATION
+com.doubtnut,Doubtnut,EDUCATION
+com.kuku.fm,Kuku FM,AUDIO
+com.pocketfm.user,Pocket FM,AUDIO
+com.gaana,Gaana,AUDIO
+com.wynk.music,Wynk Music,AUDIO
+com.hungama.myplay.activity,Hungama,AUDIO
+com.jiotv.tv,JioTV,MEDIA
+com.sonyliv,Sony LIV,MEDIA
+com.zee5.hipal,ZEE5,MEDIA
+com.alt.balaji,ALTBalaji,MEDIA
+com.voot.build,Voot,MEDIA
+com.mxtech.videoplayer.ad,MX Player,MEDIA
+com.inshorts.ai,Inshorts,NEWS
+com.dailyhunt,Dailyhunt,NEWS
+com.timesofindia.news,Times of India,NEWS
+com.ndtv.india,NDTV India,NEWS
+com.hindustantimes.android,Hindustan Times,NEWS
+com.dainikbhaskar.bhaskar,Dainik Bhaskar,NEWS
+com.jagran.android.jagranapp,Dainik Jagran,NEWS
+com.amarujala.news,Amar Ujala,NEWS
+com.eenadu.android,Eenadu,NEWS
+com.vikatan.android,Vikatan,NEWS
+com.manorama.online,Malayala Manorama,NEWS
+com.chess,Chess.com,GAME
+com.ludo.king,Ludo King,GAME
+com.krafton.pubg.im,BGMI,GAME
+com.dts.freefireth,Free Fire,GAME
+com.ea.gp.fifamobile,EA SPORTS FC,GAME
+com.playrix.gardenscapes,Gardenscapes,GAME
+com.king.candycrushsaga,Candy Crush,GAME
+com.miniclip.eightballpool,8 Ball Pool,GAME
+com.subway.surfers,Subway Surfers,GAME
+com.imangi.templerun2,Temple Run 2,GAME
