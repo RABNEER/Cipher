@@ -21,7 +21,7 @@ android {
 
     signingConfigs {
         create("release") {
-            val storePath = keystoreProperties["storeFile"] as String? ?: ""
+            val storePath = keystoreProperties["storeFile"] as String? ?: "test"
             storeFile = if (storePath.startsWith("/") || Regex("^[A-Za-z]:[\\\\/]").containsMatchIn(storePath)) {
                 file(storePath)
             } else {
