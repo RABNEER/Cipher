@@ -8,7 +8,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.IBinder
-import android.util.Log
+import timber.log.Timber
 import androidx.core.app.NotificationCompat
 import com.apocalyptolabs.viking.domain.usecase.FingerprintCallUseCase
 import dagger.hilt.android.AndroidEntryPoint
@@ -49,7 +49,7 @@ class CallMonitorService : Service() {
                 try {
                     fingerprintCallUseCase(number, duration)
                 } catch (e: Exception) {
-                    Log.e(TAG, "Error fingerprinting call metadata", e)
+                    Timber.e(e, "Error fingerprinting call metadata")
                 }
             }
         }
