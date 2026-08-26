@@ -5,8 +5,14 @@ import androidx.lifecycle.viewModelScope
 import com.apocalyptolabs.viking.core.model.Severity
 import com.apocalyptolabs.viking.core.model.ThreatResult
 import com.apocalyptolabs.viking.core.util.VikingVoiceAssistant
-import com.apocalyptolabs.viking.domain.usecase.*
+import com.apocalyptolabs.viking.domain.usecase.AnalyzeSmsUseCase
+import com.apocalyptolabs.viking.domain.usecase.AuditPermissionsUseCase
+import com.apocalyptolabs.viking.domain.usecase.CheckUpiLinkUseCase
+import com.apocalyptolabs.viking.domain.usecase.DigitalArrestDetectorUseCase
+import com.apocalyptolabs.viking.domain.usecase.FingerprintCallUseCase
+import com.apocalyptolabs.viking.domain.usecase.MonitorNfcUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -20,58 +26,70 @@ class AttackSandboxViewModel @Inject constructor(
     private val fingerprintCallUseCase: FingerprintCallUseCase,
     private val monitorNfcUseCase: MonitorNfcUseCase,
     private val auditPermissionsUseCase: AuditPermissionsUseCase,
+    private val digitalArrestDetectorUseCase: DigitalArrestDetectorUseCase,
     private val voiceAssistant: VikingVoiceAssistant
 ) : ViewModel() {
 
     private val _lastSimulatedResult = MutableStateFlow<ThreatResult?>(null)
     val lastSimulatedResult: StateFlow<ThreatResult?> = _lastSimulatedResult.asStateFlow()
 
-    fun simulateSbiPhishingSms() {
-        viewModelScope.launch {
-            val result = analyzeSmsUseCase(
-                sender = "1409991234",
-                messageBody = "URGENT: Your SBI account 4829 is suspended. Verify KYC immediately at https://sbi-kyc-update.com to avoid account closure."
-            )
+    // Simulations feed adversarial payloads into the pipeline; a sandbox crash
+    // would defeat the purpose. Any failure degrades to a caution result.
+    private val sandboxExceptionHandler = CoroutineExceptionHandler { _, throwable ->
+        _lastSimulatedResult.value = ThreatResult(
+            target = "Sandbox Simulation",
+            type = com.apocalyptolabs.viking.core.model.ThreatType.UPI,
+            severity = Severity.MEDIUM,
+            explanation = "Simulation could not complete: ${throwable.localizedMessage ?: "unknown error"}. Exercise caution.",
+            action = "Manual review recommended."
+        )
+    }
+
+    private fun simulate(block: suspend () -> ThreatResult) {
+        viewModelScope.launch(sandboxExceptionHandler) {
+            val result = block()
             _lastSimulatedResult.value = result
             voiceAssistant.speakThreatAlert(result.severity, result.target)
         }
     }
 
-    fun simulateHomoglyphUpiLink() {
-        viewModelScope.launch {
-            val result = checkUpiLinkUseCase("https://paytm-0fficial.com/claim-cashback-500")
-            _lastSimulatedResult.value = result
-            voiceAssistant.speakThreatAlert(result.severity, result.target)
-        }
+    fun simulateSbiPhishingSms() = simulate {
+        analyzeSmsUseCase(
+            sender = "1409991234",
+            messageBody = "URGENT: Your SBI account 4829 is suspended. Verify KYC immediately at https://sbi-kyc-update.com to avoid account closure."
+        )
     }
 
-    fun simulateSpoofedBankCall() {
-        viewModelScope.launch {
-            val result = fingerprintCallUseCase(
-                callerNumber = "+91180012345",
-                callDurationSeconds = 45
-            )
-            _lastSimulatedResult.value = result
-            voiceAssistant.speakThreatAlert(result.severity, result.target)
-        }
+    fun simulateHomoglyphUpiLink() = simulate {
+        checkUpiLinkUseCase("https://paytm-0fficial.com/claim-cashback-500")
     }
 
-    fun simulateNfcRelayAttack() {
-        viewModelScope.launch {
-            val result = monitorNfcUseCase(
-                tagType = "IsoDep",
-                dataSize = 512,
-                payloadUrl = "https://relay-attack.xyz",
-                isStandardFormat = false,
-                readLatencyMs = 750L
-            )
-            _lastSimulatedResult.value = result
-            voiceAssistant.speakThreatAlert(result.severity, result.target)
-        }
+    fun simulateSpoofedBankCall() = simulate {
+        fingerprintCallUseCase(
+            callerNumber = "+91180012345",
+            callDurationSeconds = 45
+        )
+    }
+
+    fun simulateDigitalArrestScam() = simulate {
+        digitalArrestDetectorUseCase(
+            callerOrSender = "+91 98765 43210",
+            textOrTranscript = "This is CBI officer Sharma. A parcel with illegal items was seized in your name. You are under digital arrest. Stay on this video call."
+        )
+    }
+
+    fun simulateNfcRelayAttack() = simulate {
+        monitorNfcUseCase(
+            tagType = "IsoDep",
+            dataSize = 512,
+            payloadUrl = "https://relay-attack.xyz",
+            isStandardFormat = false,
+            readLatencyMs = 750L
+        )
     }
 
     fun simulateOverPrivilegedAppAudit() {
-        viewModelScope.launch {
+        viewModelScope.launch(sandboxExceptionHandler) {
             val results = auditPermissionsUseCase()
             _lastSimulatedResult.value = results.firstOrNull() ?: ThreatResult(
                 target = "Super Flashlight App",

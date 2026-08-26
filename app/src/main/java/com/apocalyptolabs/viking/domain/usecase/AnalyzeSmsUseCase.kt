@@ -24,13 +24,22 @@ class AnalyzeSmsUseCase @Inject constructor(
     private val classifier: ThreatClassifier,
     private val repository: ThreatRepository
 ) {
-    private val urgencyWordsCache = mutableSetOf<String>()
+    private data class UrgencyEntry(val phrase: String, val weight: Int)
+
+    private val urgencyEntries = mutableListOf<UrgencyEntry>()
     private val lastNotificationMap = ConcurrentHashMap<String, Long>()
 
-    private val BANK_SHORTCODE_REGEX = Regex("^[A-Z]{2}-[A-Z0-9]{6}$", RegexOption.IGNORE_CASE)
+    // DLT transactional headers are always UPPERCASE (e.g. XX-HDFCBK).
+    // A lowercase spoofed header must never be whitelisted blindly.
+    private val BANK_SHORTCODE_REGEX = Regex("^[A-Z]{2}-[A-Z0-9]{6}$")
     private val OTP_REGEX = Regex("\\b\\d{4,8}\\b")
     private val UPI_ID_REGEX = Regex("[a-zA-Z0-9.\\-_]{2,256}@[a-zA-Z]{2,64}")
     private val URL_REGEX = Regex("https?://\\S+|www\\.\\S+")
+
+    private val GOVT_SCHEME_KEYWORDS = listOf(
+        "pm kisan", "ayushman", "dbt", "scholarship", "kisan yojana", "aadhaar link",
+        "pan card update", "ration card", "ujjwala", "jan dhan"
+    )
 
     init {
         loadUrgencyWordsAsset()
@@ -40,11 +49,13 @@ class AnalyzeSmsUseCase @Inject constructor(
         try {
             context.assets.open("urgency_words.txt").bufferedReader().useLines { lines ->
                 lines.forEach { line ->
+                    if (line.isBlank() || line.trimStart().startsWith("#")) return@forEach
                     val parts = line.split(",")
                     if (parts.isNotEmpty()) {
-                        val word = parts[0].trim().lowercase()
-                        if (word.isNotBlank() && !word.startsWith("#")) {
-                            urgencyWordsCache.add(word)
+                        val phrase = parts[0].trim().lowercase()
+                        val weight = parts.getOrNull(2)?.trim()?.toIntOrNull() ?: 1
+                        if (phrase.isNotBlank()) {
+                            urgencyEntries.add(UrgencyEntry(phrase, weight.coerceIn(1, 10)))
                         }
                     }
                 }
@@ -52,6 +63,20 @@ class AnalyzeSmsUseCase @Inject constructor(
         } catch (e: Exception) {
             VikingLogger.w("Could not load urgency_words.txt asset", "AnalyzeSmsUseCase")
         }
+    }
+
+    private fun computeUrgencyScore(messageBody: String): Int {
+        val lowerBody = messageBody.lowercase()
+        var score = 0
+        for ((phrase, weight) in urgencyEntries) {
+            val matched = if (phrase.contains(' ')) {
+                lowerBody.contains(phrase)
+            } else {
+                lowerBody.split("\\s+".toRegex()).contains(phrase)
+            }
+            if (matched) score += weight
+        }
+        return score.coerceAtMost(10)
     }
 
     suspend operator fun invoke(sender: String, messageBody: String): ThreatResult {
@@ -70,23 +95,22 @@ class AnalyzeSmsUseCase @Inject constructor(
             sender = sender
         )
         if (directReturn != null) {
-            repository.logThreat(directReturn, System.currentTimeMillis() - startTime)
+            safeLog(directReturn, System.currentTimeMillis() - startTime)
             return directReturn
         }
 
         val hasUrl = URL_REGEX.containsMatchIn(messageBody)
         val hasUpiId = UPI_ID_REGEX.containsMatchIn(messageBody)
         val hasOtp = OTP_REGEX.containsMatchIn(messageBody)
-
-        val words = messageBody.lowercase().split("\\s+".toRegex())
-        val urgencyScore = words.count { urgencyWordsCache.contains(it) }.coerceAtMost(10)
+        val urgencyScore = computeUrgencyScore(messageBody)
+        val languageDetected = detectLanguage(messageBody)
 
         val extractedFeatures = mutableListOf<String>()
         if (hasUrl) extractedFeatures.add("CONTAINS_URL")
         if (hasUpiId) extractedFeatures.add("CONTAINS_UPI_ID")
         if (hasOtp) extractedFeatures.add("CONTAINS_OTP_PATTERN")
         if (sender.startsWith("140")) extractedFeatures.add("TELEMARKETER_PREFIX_140")
-        if (urgencyScore > 0) extractedFeatures.add("URGENCY_KEYWORDS_COUNT_$urgencyScore")
+        if (urgencyScore > 0) extractedFeatures.add("URGENCY_KEYWORDS_SCORE_$urgencyScore")
 
         val prompt = PromptBuilder.smsPrompt(
             senderType = senderType,
@@ -94,17 +118,16 @@ class AnalyzeSmsUseCase @Inject constructor(
             hasUpiId = hasUpiId,
             hasOtpPattern = hasOtp,
             urgencyScore = urgencyScore,
-            languageDetected = "hi",
-            mentionsBankName = messageBody.contains("bank", ignoreCase = true) || messageBody.contains("sbi", ignoreCase = true),
-            mentionsGovtScheme = false,
+            languageDetected = languageDetected,
+            mentionsBankName = messageBody.contains("bank", ignoreCase = true) ||
+                listOf("sbi", "hdfc", "icici", "axis", "kotak", "pnb").any { messageBody.contains(it, ignoreCase = true) },
+            mentionsGovtScheme = GOVT_SCHEME_KEYWORDS.any { messageBody.lowercase().contains(it) },
             featureCount = extractedFeatures.size
         )
 
         val result = classifier.classify(prompt, "SMS from $sender", ThreatType.SMS)
         val duration = System.currentTimeMillis() - startTime
-        try {
-            repository.logThreat(result, duration)
-        } catch (e: Throwable) {}
+        safeLog(result, duration)
 
         val fingerprint = "$sender:${extractedFeatures.joinToString(",")}"
         val lastTime = lastNotificationMap[fingerprint] ?: 0L
@@ -117,6 +140,17 @@ class AnalyzeSmsUseCase @Inject constructor(
         }
 
         return result
+    }
+
+    private fun detectLanguage(text: String): String {
+        return if (text.any { it.code in 0x0900..0x097F }) "hi" else "en"
+    }
+
+    private suspend fun safeLog(threat: ThreatResult, duration: Long) {
+        try {
+            repository.logThreat(threat, duration)
+        } catch (_: Throwable) {
+        }
     }
 
     private fun postThreatNotification(result: ThreatResult) {

@@ -14,6 +14,9 @@ import com.apocalyptolabs.viking.domain.usecase.FingerprintCallUseCase
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -23,7 +26,10 @@ class CallMonitorService : Service() {
     @Inject
     lateinit var fingerprintCallUseCase: FingerprintCallUseCase
 
-    private val serviceScope = CoroutineScope(Dispatchers.IO)
+    @Inject
+    lateinit var threatRepository: com.apocalyptolabs.viking.data.repository.ThreatRepository
+
+    private val serviceScope = CoroutineScope(Dispatchers.IO + kotlinx.coroutines.SupervisorJob())
 
     companion object {
         private const val TAG = "CallMonitorService"
@@ -47,6 +53,8 @@ class CallMonitorService : Service() {
 
             serviceScope.launch {
                 try {
+                    val callEnabled = threatRepository.moduleStatusMap.first()["CALL"] ?: true
+                    if (!callEnabled) return@launch
                     fingerprintCallUseCase(number, duration)
                 } catch (e: Exception) {
                     Timber.e(e, "Error fingerprinting call metadata")
@@ -54,6 +62,11 @@ class CallMonitorService : Service() {
             }
         }
         return START_STICKY
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        serviceScope.cancel()
     }
 
     override fun onBind(intent: Intent?): IBinder? = null

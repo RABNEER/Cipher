@@ -4,12 +4,13 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.provider.Telephony
-import com.apocalyptolabs.viking.core.model.Severity
 import com.apocalyptolabs.viking.core.util.VikingLogger
+import com.apocalyptolabs.viking.data.repository.ThreatRepository
 import com.apocalyptolabs.viking.domain.usecase.AnalyzeSmsUseCase
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -18,6 +19,9 @@ class SmsMonitorReceiver : BroadcastReceiver() {
 
     @Inject
     lateinit var analyzeSmsUseCase: AnalyzeSmsUseCase
+
+    @Inject
+    lateinit var repository: ThreatRepository
 
     private val receiverScope = CoroutineScope(Dispatchers.IO)
 
@@ -39,11 +43,13 @@ class SmsMonitorReceiver : BroadcastReceiver() {
         val pendingResult = goAsync()
         receiverScope.launch {
             try {
-                val result = analyzeSmsUseCase(sender, fullBody)
-                if (result.severity == Severity.CRITICAL && isOrderedBroadcast) {
-                    VikingLogger.w("CRITICAL threat detected on incoming SMS. Aborting broadcast.", TAG)
-                    abortBroadcast()
-                }
+                // Respect the user's SMS Shield toggle from Settings.
+                val smsEnabled = repository.moduleStatusMap.first()["SMS"] ?: true
+                if (!smsEnabled) return@launch
+                // Analysis already raises a HIGH notification for CRITICAL threats.
+                // Never abortBroadcast(): swallowing the SMS deletes the user's own
+                // evidence message from their inbox.
+                analyzeSmsUseCase(sender, fullBody)
             } catch (e: Exception) {
                 VikingLogger.e("Failed to analyze incoming SMS", e, TAG)
             } finally {

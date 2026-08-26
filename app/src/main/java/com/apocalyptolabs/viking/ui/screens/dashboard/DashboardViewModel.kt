@@ -39,6 +39,9 @@ class DashboardViewModel @Inject constructor(
     private val _isAnalyzing = MutableStateFlow(false)
     val isAnalyzing: StateFlow<Boolean> = _isAnalyzing.asStateFlow()
 
+    private val _isRefreshing = MutableStateFlow(false)
+    val isRefreshing: StateFlow<Boolean> = _isRefreshing.asStateFlow()
+
     private val _testResult = MutableStateFlow<ThreatResult?>(null)
     val testResult: StateFlow<ThreatResult?> = _testResult.asStateFlow()
 
@@ -127,5 +130,17 @@ class DashboardViewModel @Inject constructor(
 
     fun clearTestResult() {
         _testResult.value = null
+    }
+
+    /**
+     * Threat streams are live Room queries, so a pull-to-refresh re-emits fresh
+     * data automatically; this just drives the visible refresh indicator.
+     */
+    fun refresh() {
+        viewModelScope.launch {
+            _isRefreshing.value = true
+            kotlinx.coroutines.delay(350)
+            _isRefreshing.value = false
+        }
     }
 }

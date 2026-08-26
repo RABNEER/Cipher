@@ -59,7 +59,7 @@ class SettingsViewModel @Inject constructor(
     }
 
     fun exportDiagnosticReport(onIntentReady: (Intent) -> Unit) {
-        viewModelScope.launch {
+        viewModelScope.launch(kotlinx.coroutines.Dispatchers.IO) {
             try {
                 val zipFile = File(context.cacheDir, "viking_diagnostic_report.zip")
                 ZipOutputStream(FileOutputStream(zipFile)).use { zos ->
@@ -101,6 +101,21 @@ class SettingsViewModel @Inject constructor(
                 onIntentReady(Intent.createChooser(intent, "Share Diagnostic Report"))
             } catch (e: Exception) {
                 VikingLogger.e("Failed to generate diagnostic report", e, "SettingsViewModel")
+            }
+        }
+    }
+
+    fun generateCertificatePdf(onReady: (java.io.File?) -> Unit) {
+        viewModelScope.launch(kotlinx.coroutines.Dispatchers.IO) {
+            val file = try {
+                com.apocalyptolabs.viking.core.util.PdfReportGenerator.generateSecurityCertificatePdf(
+                    context, emptyList(), 0
+                )
+            } catch (_: Exception) {
+                null
+            }
+            kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main) {
+                onReady(file)
             }
         }
     }

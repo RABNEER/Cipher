@@ -15,6 +15,9 @@ import com.apocalyptolabs.viking.domain.usecase.CheckUpiLinkUseCase
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -24,7 +27,10 @@ class ClipboardGuardService : Service(), ClipboardManager.OnPrimaryClipChangedLi
     @Inject
     lateinit var checkUpiLinkUseCase: CheckUpiLinkUseCase
 
-    private val serviceScope = CoroutineScope(Dispatchers.IO)
+    @Inject
+    lateinit var threatRepository: com.apocalyptolabs.viking.data.repository.ThreatRepository
+
+    private val serviceScope = CoroutineScope(Dispatchers.IO + kotlinx.coroutines.SupervisorJob())
     private var clipboardManager: ClipboardManager? = null
 
     companion object {
@@ -52,6 +58,8 @@ class ClipboardGuardService : Service(), ClipboardManager.OnPrimaryClipChangedLi
             VikingLogger.d("Clipboard URL/UPI detected: $text", TAG)
             serviceScope.launch {
                 try {
+                    val upiEnabled = threatRepository.moduleStatusMap.first()["UPI"] ?: true
+                    if (!upiEnabled) return@launch
                     val result = checkUpiLinkUseCase(text)
                     if (result.severity == Severity.HIGH || result.severity == Severity.CRITICAL) {
                         postClipboardAlertNotification(result.explanation, result.action)
@@ -66,6 +74,7 @@ class ClipboardGuardService : Service(), ClipboardManager.OnPrimaryClipChangedLi
     override fun onDestroy() {
         super.onDestroy()
         clipboardManager?.removePrimaryClipChangedListener(this)
+        serviceScope.cancel()
         VikingLogger.i("ClipboardGuardService destroyed.", TAG)
     }
 

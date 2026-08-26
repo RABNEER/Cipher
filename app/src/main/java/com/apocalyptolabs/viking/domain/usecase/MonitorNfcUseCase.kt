@@ -1,7 +1,9 @@
 package com.apocalyptolabs.viking.domain.usecase
 
+import android.app.AppOpsManager
 import android.app.usage.UsageStatsManager
 import android.content.Context
+import android.os.Process
 import com.apocalyptolabs.viking.core.ai.PromptBuilder
 import com.apocalyptolabs.viking.core.ai.ThreatClassifier
 import com.apocalyptolabs.viking.core.model.NfcRecordType
@@ -39,12 +41,18 @@ class MonitorNfcUseCase @Inject constructor(
                 explanation = "NFC read attempt blocked while payment application is in foreground.",
                 action = "Close payment app before scanning unverified NFC tags."
             )
-            repository.logThreat(blockedResult, System.currentTimeMillis() - startTime)
+            safeLog(blockedResult, System.currentTimeMillis() - startTime)
             return blockedResult
         }
 
         val hasExternalUrl = !payloadUrl.isNullOrBlank() && (payloadUrl.startsWith("http://") || payloadUrl.startsWith("https://"))
-        val rType = if (hasExternalUrl) NfcRecordType.URL else NfcRecordType.TEXT
+        val rType = if (!isStandardFormat) {
+            NfcRecordType.UNKNOWN
+        } else if (hasExternalUrl) {
+            NfcRecordType.URL
+        } else {
+            NfcRecordType.TEXT
+        }
         val isRelaySuspected = readLatencyMs > 500L
 
         val directReturn = PromptBuilder.checkNfcDirectReturn(
@@ -53,7 +61,7 @@ class MonitorNfcUseCase @Inject constructor(
         )
 
         if (directReturn != null) {
-            repository.logThreat(directReturn, System.currentTimeMillis() - startTime)
+            safeLog(directReturn, System.currentTimeMillis() - startTime)
             return directReturn
         }
 
@@ -68,22 +76,52 @@ class MonitorNfcUseCase @Inject constructor(
 
         val result = classifier.classify(prompt, "NFC Tag ($tagType)", ThreatType.NFC)
         val duration = System.currentTimeMillis() - startTime
-        repository.logThreat(result, duration)
+        safeLog(result, duration)
         return result
     }
 
+    /**
+     * Only queries UsageStats when the user actually granted "Usage Access".
+     * Without the grant, queryUsageStats returns empty results or throws a
+     * SecurityException, making the check dead code that silently never fires.
+     */
     private fun isPaymentAppInForeground(): Boolean {
-        try {
+        if (!hasUsageStatsPermission()) return false
+        return try {
             val usm = context.getSystemService(Context.USAGE_STATS_SERVICE) as? UsageStatsManager ?: return false
             val endTime = System.currentTimeMillis()
-            val stats = usm.queryUsageStats(UsageStatsManager.INTERVAL_DAILY, endTime - 10_000L, endTime)
+            val stats = usm.queryUsageStats(UsageStatsManager.INTERVAL_BEST, endTime - 60_000L, endTime)
             if (stats.isNullOrEmpty()) return false
 
-            val topApp = stats.maxByOrNull { it.lastTimeUsed } ?: return false
-            return PAYMENT_PACKAGES.contains(topApp.packageName)
+            // Only trust entries actually used within the last few seconds.
+            val recentWindow = endTime - 5_000L
+            val topApp = stats.filter { it.lastTimeUsed >= recentWindow }
+                .maxByOrNull { it.lastTimeUsed } ?: return false
+            PAYMENT_PACKAGES.contains(topApp.packageName)
         } catch (e: Exception) {
             VikingLogger.w("Could not check UsageStatsManager for payment apps", "MonitorNfcUseCase")
-            return false
+            false
+        }
+    }
+
+    private fun hasUsageStatsPermission(): Boolean {
+        return try {
+            val appOps = context.getSystemService(Context.APP_OPS_SERVICE) as? AppOpsManager ?: return false
+            val mode = appOps.checkOpNoThrow(
+                AppOpsManager.OPSTR_GET_USAGE_STATS,
+                Process.myUid(),
+                context.packageName
+            )
+            mode == AppOpsManager.MODE_ALLOWED
+        } catch (_: Exception) {
+            false
+        }
+    }
+
+    private suspend fun safeLog(threat: ThreatResult, duration: Long) {
+        try {
+            repository.logThreat(threat, duration)
+        } catch (_: Throwable) {
         }
     }
 }

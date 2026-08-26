@@ -8,16 +8,47 @@ import android.service.quicksettings.TileService
 import android.widget.Toast
 import com.apocalyptolabs.viking.R
 import com.apocalyptolabs.viking.core.util.VikingLogger
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.cancelChildren
+import kotlinx.coroutines.launch
 
 class VikingQuickTile : TileService() {
 
+    private val tileScope = CoroutineScope(Dispatchers.Main.immediate + SupervisorJob())
+
     companion object {
         private const val TAG = "VikingQuickTile"
+
+        val MONITORED_SERVICES = listOf(
+            NfcMonitorService::class.java,
+            CallMonitorService::class.java,
+            ClipboardGuardService::class.java,
+            MediaSideloadObserverService::class.java
+        )
     }
 
     override fun onStartListening() {
         super.onStartListening()
         updateTileState()
+        tileScope.launch {
+            VikingServiceState.blockedThreatCount.collect {
+                qsTile ?: return@collect
+                updateTileState()
+            }
+        }
+    }
+
+    override fun onStopListening() {
+        super.onStopListening()
+        tileScope.coroutineContext.cancelChildren()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        tileScope.cancel()
     }
 
     override fun onClick() {
@@ -76,15 +107,13 @@ class VikingQuickTile : TileService() {
 
     private fun startForegroundServices() {
         try {
-            val nfcIntent = Intent(this, NfcMonitorService::class.java)
-            val callIntent = Intent(this, CallMonitorService::class.java)
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                startForegroundService(nfcIntent)
-                startForegroundService(callIntent)
-            } else {
-                startService(nfcIntent)
-                startService(callIntent)
+            for (serviceClass in MONITORED_SERVICES) {
+                val intent = Intent(this, serviceClass)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    startForegroundService(intent)
+                } else {
+                    startService(intent)
+                }
             }
         } catch (e: Exception) {
             VikingLogger.e("Failed to start Viking foreground services from QS tile", e, TAG)
@@ -93,8 +122,9 @@ class VikingQuickTile : TileService() {
 
     private fun stopForegroundServices() {
         try {
-            stopService(Intent(this, NfcMonitorService::class.java))
-            stopService(Intent(this, CallMonitorService::class.java))
+            for (serviceClass in MONITORED_SERVICES) {
+                stopService(Intent(this, serviceClass))
+            }
         } catch (e: Exception) {
             VikingLogger.e("Failed to stop Viking foreground services from QS tile", e, TAG)
         }

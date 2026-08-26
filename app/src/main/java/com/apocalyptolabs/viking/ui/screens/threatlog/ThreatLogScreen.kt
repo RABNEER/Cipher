@@ -26,6 +26,7 @@ import com.apocalyptolabs.viking.core.model.ThreatResult
 import com.apocalyptolabs.viking.core.util.CybercrimeReportExporter
 import com.apocalyptolabs.viking.core.util.toFormattedDate
 import com.apocalyptolabs.viking.ui.theme.*
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -34,6 +35,7 @@ fun ThreatLogScreen(
     viewModel: ThreatLogViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
     val logs by viewModel.threatLogs.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -51,17 +53,12 @@ fun ThreatLogScreen(
         contract = ActivityResultContracts.CreateDocument("text/csv")
     ) { uri: Uri? ->
         uri?.let { destUri ->
-            try {
-                context.contentResolver.openOutputStream(destUri)?.use { out ->
-                    val csvHeader = "ID,Timestamp,Type,Severity,Target,Explanation,Action\n"
-                    out.write(csvHeader.toByteArray())
-                    logs.forEach { log ->
-                        val line = "\"${log.id}\",\"${log.timestamp}\",\"${log.type.name}\",\"${log.severity.name}\",\"${log.target.replace("\"", "\"\"")}\",\"${log.explanation.replace("\"", "\"\"")}\",\"${log.action.replace("\"", "\"\"")}\"\n"
-                        out.write(line.toByteArray())
-                    }
+            viewModel.exportCsv(destUri, logs) { success ->
+                scope.launch {
+                    snackbarHostState.showSnackbar(
+                        if (success) "Threat log exported to CSV" else "Failed to export threat log"
+                    )
                 }
-            } catch (e: Exception) {
-                e.printStackTrace()
             }
         }
     }

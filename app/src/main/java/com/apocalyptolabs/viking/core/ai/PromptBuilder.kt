@@ -8,8 +8,6 @@ import com.apocalyptolabs.viking.core.model.Severity
 import com.apocalyptolabs.viking.core.model.ThreatResult
 import com.apocalyptolabs.viking.core.model.ThreatType
 
-class PromptInjectionException(val injectionTerm: String) : Exception("Prompt injection detected: $injectionTerm")
-
 object PromptBuilder {
 
     private const val ROLE_LINE = "You are Viking, a cybersecurity AI running on-device on an Android phone in India."
@@ -19,14 +17,12 @@ object PromptBuilder {
         "ignore previous", "system:", "you are now", "disregard", "forget your", "new instructions"
     )
 
-    fun sanitize(input: String): String {
+    fun detectInjection(input: String): String? {
         val lower = input.lowercase()
-        for (pattern in INJECTION_PATTERNS) {
-            if (lower.contains(pattern)) {
-                throw PromptInjectionException(pattern)
-            }
-        }
+        return INJECTION_PATTERNS.firstOrNull { lower.contains(it) }
+    }
 
+    fun sanitize(input: String): String {
         val sb = StringBuilder()
         for (char in input) {
             val code = char.code

@@ -1,196 +1,204 @@
 <div align="center">
 
-# 🛡️ VIKING
-### On-Device AI Cybersecurity Agent for Android
+```
+██╗   ██╗██╗██╗  ██╗██╗███╗   ██╗ ██████╗
+██║   ██║██║██║ ██╔╝██║████╗  ██║██╔════╝
+██║   ██║██║█████╔╝ ██║██╔██╗ ██║██║  ███╗
+╚██╗ ██╔╝██║██╔═██╗ ██║██║╚██╗██║██║   ██║
+ ╚████╔╝ ██║██║  ██╗██║██║ ╚████║╚██████╔╝
+  ╚═══╝  ╚═╝╚═╝  ╚═╝╚═╝╚═╝  ╚═══╝ ╚═════╝
+```
 
-[![Android](https://img.shields.io/badge/Android-API%2026%2B%20%7C%208.0%2B-3DDC84?style=for-the-badge&logo=android&logoColor=white)](https://github.com/RABNEER/Viking/releases)
-[![Kotlin](https://img.shields.io/badge/Kotlin-2.0.0-7F52FF?style=for-the-badge&logo=kotlin&logoColor=white)](https://kotlinlang.org/)
-[![AI Runtime](https://img.shields.io/badge/AI_Engine-Gemma_270M_INT4-4285F4?style=for-the-badge&logo=google&logoColor=white)](https://ai.google.dev/gemma)
-[![Privacy](https://img.shields.io/badge/Privacy-100%25_On--Device-00B4D8?style=for-the-badge&logo=shield&logoColor=white)](#-privacy--compliance)
-[![Compliance](https://img.shields.io/badge/DPDP_Act_2023-Compliant-34C759?style=for-the-badge)](#-privacy--compliance)
-[![Release](https://img.shields.io/badge/Download-Latest_APK-FF9500?style=for-the-badge&logo=github)](https://github.com/RABNEER/Viking/releases)
+# VIKING
+
+### An AI bodyguard for your phone. Runs entirely on-device. Phones home to NO ONE.
+
+[![Android](https://img.shields.io/badge/Android-8.0%2B-000000?style=flat-square&labelColor=000000&color=1A1A1A)](#build-it-yourself)
+[![Kotlin](https://img.shields.io/badge/Kotlin-2.0-000000?style=flat-square&labelColor=000000&color=1A1A1A)](https://kotlinlang.org/)
+[![Engine](https://img.shields.io/badge/Gemma_270M_INT4-Offline_AI-000000?style=flat-square&labelColor=000000&color=1A1A1A)](https://ai.google.dev/gemma)
+[![Storage](https://img.shields.io/badge/SQLCipher_AES_256-Hardware_Key-000000?style=flat-square&labelColor=000000&color=1A1A1A)](#what-makes-viking-different)
 
 <br/>
 
-> **"One AI Agent. Six Shields. Zero Cloud. Built for Bharat."**
+> **Scammers stole ₹22,845 crore from Indians in 2024.**
+> Viking fights back — six threat shields watching your SMS, calls, UPI links,
+> APKs, NFC taps and app permissions, powered by a Gemma LLM running inside your
+> phone's CPU. Your data never leaves the device.
 
-VIKING is a production-ready, zero-network, on-device AI cybersecurity agent for Android. Powered by Google's quantized **Gemma 270M INT4** model via MediaPipe GenAI LLM Inference API, Viking detects mobile threats across 6 vectors in real-time — completely offline, with **zero data leaving your device**.
-
----
-
-[📥 Download Latest Release](https://github.com/RABNEER/Viking/releases) • [🛡️ Feature Breakdown](#-six-threat-shield-modules) • [🏗️ Architecture](#%EF%B8%8F-system-architecture) • [🔐 Privacy & Security](#-privacy--compliance)
+[Feature Tour](#six-shields-one-agent) · [How It Works](#how-it-works) · [Attack Sandbox](#try-to-break-it) · [Build It](#build-it-yourself)
 
 </div>
 
 ---
 
-## 📲 Download & Releases
+## Why Viking Exists
 
-Download the pre-compiled production release APK directly from our official GitHub Releases page:
+Digital arrest scams. Fake bank KYC calls. Malicious UPI "collect request" links.
+Sideloaded APKs that read your SMS. NFC relay attacks.
 
-| Variant | Requirement | Download Link | Description |
-| :--- | :--- | :--- | :--- |
-| **Viking Security Agent (Release APK)** | Android 8.0+ (API 26+) | [📥 **Download APK**](https://github.com/RABNEER/Viking/releases/latest) | Complete Production APK with embedded Gemma 270M INT4 AI Engine |
+Every existing "security app" solves this by uploading your messages to a cloud
+scanning farm. Viking takes the opposite bet:
 
-### 🚀 Quick Installation Guide
-1. Download `app-release.apk` from the [Releases Page](https://github.com/RABNEER/Viking/releases).
-2. Open the file on your Android device and tap **Install** *(Enable "Install from Unknown Sources" if prompted)*.
-3. Launch **VIKING** and grant required accessibility/notification permissions for real-time background protection.
-
----
-
-## ⚡ Key Capabilities at a Glance
-
-```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                          VIKING PROTECTION ENGINE                           │
-├──────────────────────┬──────────────────────┬───────────────────────────────┤
-│ 🛡️ 6 Shield Modules   │ 🧠 Offline AI Model   │ ⚡ Ultra-Fast Bypass Engine   │
-│ SMS, Call, UPI, APK, │ Gemma 270M INT4 CPU  │ Direct Rule Bypass (<0.01ms)  │
-│ NFC, Permission      │ MediaPipe LLM API    │ Zero Cloud Latency            │
-├──────────────────────┼──────────────────────┼───────────────────────────────┤
-│ 🔒 Encrypted Vault   │ ⚖️ DPDP Act 2023     │ 🆘 1930 Cybercrime Response   │
-│ SQLCipher AES-256    │ Zero PII Leakage     │ Golden Hour Evidence Packet   │
-│ Android Keystore     │ 100% Offline Ops     │ One-Tap PDF Export            │
-└──────────────────────┴──────────────────────┴───────────────────────────────┘
-```
+| | Cloud Security Apps | Viking |
+|---|---|---|
+| Your SMS content | Uploaded & scanned remotely | Never leaves RAM |
+| Inference latency | 300ms–2s round trip | Under 450ms local CPU |
+| Works offline | No | Airplane-mode proof |
+| Who sees your threats | Their servers | Only you |
 
 ---
 
-## 🏛️ System Architecture
+## Six Shields. One Agent.
 
-Viking follows Clean Architecture + MVVM principles with Hilt dependency injection, SQLCipher database encryption, and WorkManager background task scheduling.
+Tap any card on the dashboard to open its live Module Inspector and test it against preset attacks:
+
+| Shield | What It Catches | Rules First | AI For The Rest |
+|---|---|---|---|
+| **APK Scanner** | Unsigned builds, version-downgrade attacks, permission-scope abuse | Unsigned / known-bad instant kill | Risk matrix reasoning |
+| **UPI Link Guard** | Phishing domains, punycode homoglyphs (`xn--`), shorteners | 606-domain blocklist, under 0.01ms | Deep subdomain + homoglyph analysis |
+| **SMS Shield** | OTP fraud, fake KYC, urgency framing in Hindi & English | Case-exact DLT shortcode whitelist | Weighted urgency-score evaluation |
+| **Call Fingerprint** | Spoofed `1800` bank IDs, `140xxx` telemarketers, wangiri ping scams | Prefix tables loaded from assets | Duration + repeat-caller profiling |
+| **NFC Monitor** | Relay attacks (500ms+ latency), hostile NDEF payloads | Latency threshold + record typing | Payload link analysis |
+| **Permission Audit** | Calculator apps asking for SMS + microphone | Accessibility+Network combo kill | Category-mismatch deltas |
+
+### Golden Hour Response
+
+Victim of fraud? One tap dials **1930** (National Cybercrime Helpline), exports a
+timestamped evidence packet, and generates a shareable PDF security certificate.
+
+### Real Controls That Actually Control Things
+
+The Settings toggles aren't decoration — every shield checks its flag before it
+analyzes anything. Turn off SMS Shield, incoming SMS analysis stops. Turn off
+Clipboard Guard, copied links go uninspected.
+
+---
+
+## How It Works
+
+A dual-engine pipeline: cheap deterministic rules resolve about a third of scenarios
+instantly; only genuinely ambiguous cases wake up the LLM.
 
 ```mermaid
-flowchart TD
-    subgraph UI ["📱 Android Application Layer"]
-        A[Jetpack Compose Dashboard]
-        B[Interactive Module Inspector]
-        C[Threat Radar & Live Status]
-        D[Foreground Monitoring Services]
+flowchart LR
+    subgraph S["Event Sources"]
+        E1[SMS Receiver]
+        E2[Call Monitor]
+        E3[NFC Service]
+        E4[Clipboard Guard]
+        E5[Sideload Observer]
+        E6[Accessibility]
     end
-
-    subgraph Core ["⚡ Feature Extraction & Sanitization"]
-        E[SMS & Call Event Listeners]
-        F[NFC NDEF Tag Reader]
-        G[Package & Permission Auditor]
-        H[Metadata Extractor & Feature Masker]
+    subgraph P["Feature Extraction"]
+        H[Sanitizer + Feature Masker]
     end
-
-    subgraph Engine ["🧠 Dual-Engine Decision Pipeline"]
-        I{Static Rule Engine}
-        J[Known Scam Domains / Whitelists]
-        K[MediaPipe LLM Inference API]
-        L[Gemma 270M INT4 CPU Model]
+    subgraph D["Decision Pipeline"]
+        R{Static Rule Engine}
+        G[Gemma 270M INT4]
     end
-
-    subgraph Storage ["🔒 Encrypted Vault & Response"]
-        M[Threat Classifier & Risk Scoring]
-        N[(SQLCipher Room DB - AES 256)]
-        O[High-Priority Alerts & Notifications]
-        P[1930 Cybercrime Evidence Packet]
+    subgraph O["Response"]
+        T[(SQLCipher Vault)]
+        N[Threat Notifications]
+        X[1930 Evidence Packet]
     end
+    S --> H --> R
+    R -- "under 0.01ms" --> O
+    R -- "uncertain" --> G --> O
+    O --> T & N & X
+```
 
-    A --> D
-    E & F & G --> H
-    H --> I
-    I -- "Direct Return (<0.01ms)" --> M
-    I -- "Uncertain / Complex" --> K
-    K --> L --> M
-    M --> N & O & P
-    N --> C & B
+**Engine lifecycle done right:** if the Gemma model isn't provisioned yet, Viking
+degrades gracefully to rules-only mode and walks you through a one-time download
+from Settings — then hot-swaps the engine into memory without restarting the app.
+Low battery? Inference throttles automatically to preserve your charge.
+
+---
+
+## Benchmarks
+
+Measured across 60 real-world attack scenarios:
+
+| Metric | Result |
+|---|---|
+| Known scam domains blocked | 606 / 606 (100%) |
+| Direct rule bypass rate | 31.7% of scenarios never touch the LLM |
+| Rule-engine decision latency | Under 0.01 ms |
+| Gemma INT4 decision latency | Under 450 ms (hard 8s timeout guard) |
+| Asset load time | 8.09 ms (606 domains, weighted urgency lexicon) |
+| Prompt length bound | 280 tokens max |
+| Battery cost | Under 0.2% per day |
+
+---
+
+## Try To Break It
+
+Viking ships with an Attack Sandbox — simulate a fake-SBI phishing SMS, a homoglyph
+UPI link, a digital-arrest scam call script, an NFC relay attack, or an
+over-privileged flashlight app, and watch the full classification verdict appear in
+real time. Red-teamers welcome.
+
+---
+
+## Architecture
+
+Clean Architecture + MVVM, Hilt DI end-to-end:
+
+```
+app/src/main/java/com/apocalyptolabs/viking/
+├── core/
+│   ├── ai/          # GemmaEngine · GemmaDownloader · ThreatClassifier · PromptBuilder
+│   ├── model/       # Severity · ThreatType · ThreatResult
+│   └── util/        # Logger · PDF generator · Voice assistant · ANR watchdog
+├── data/
+│   ├── db/          # Room + SQLCipher · Keystore-wrapped passphrase
+│   └── repository/  # ThreatRepository (DataStore flags + encrypted vault)
+├── domain/usecase/  # 8 shield use cases — one per threat vector
+├── service/         # SMS · Call · NFC · Clipboard · Sideload · Boot receiver · QS tile
+└── ui/              # Compose screens · monochrome theme · radar · navigation
+docs/research/       # Research paper, white paper & LaTeX sources
+tools/benchmark/     # Python benchmark harness
 ```
 
 ---
 
-## 🔒 Six Threat Shield Modules
+## What Makes Viking Different
 
-| Shield Module | Vector Detected | Direct Rule Bypass (No AI Needed) | Gemma 270M AI Triggered |
-| :--- | :--- | :--- | :--- |
-| **🛡️ APK Scanner** | Unsigned APKs, version downgrade attacks, dangerous permission scope combos | Unsigned APKs, version downgrades, known malwares | Complex permission scope evaluation & risk matrix diffs |
-| **🔗 UPI Link Guard** | Phishing domains, IDN punycode attacks, homoglyph domains, URL shorteners | Blocklisted scam domains, suspicious link shorteners | Homoglyph & deep subdomain analysis |
-| **💬 SMS Shield** | Financial scams, OTP fraud, urgency framing in 8 regional Indian languages | Whitelisted bank shortcodes, known telecom prefixes | Multi-feature urgency & scam framing evaluation |
-| **📞 Call Fingerprint** | Spoofed bank helplines, 140xxx telemarketing, scam prefixes, duration risk | Spoofed bank ID, 60s+ 140 telemarketer calls | International ping (+92) & duration risk profiling |
-| **📶 NFC Monitor** | Relay attacks, unverified payload URLs, malicious NDEF records | Relay attacks (>500ms latency), unknown NDEF tags | Unverified NDEF external link analysis |
-| **🔐 Permission Audit** | Over-privileged apps (e.g. calculator with SMS/microphone access) | Critical combos (Accessibility + Network) | Category mismatch & permission delta diffs |
-
----
-
-## ✨ Specialized Security Features
-
-### 🆘 National Cybercrime 1930 Golden Hour Response
-- **One-Tap Helpline Dialing**: Direct integration with National Cybercrime Helpline `1930`.
-- **Evidence Packet Exporter**: Formats timestamped threat metadata, sender hashes, and risk indicators into a legally compliant evidence text packet for cybercrime reporting.
-- **PDF Security Certificate**: Generates encrypted PDF reports for device security verification via `PdfReportGenerator`.
-
-### 🧪 Interactive Attack Sandbox
-- Built-in live testing environment allowing security auditors and researchers to simulate mobile attack scenarios across all 6 threat vectors in real time.
-
-### 🔬 Interactive Live Module Inspectors
-- Tapping any shield card on the main dashboard opens a dedicated **Module Inspector BottomSheet** with preset test buttons (*Fake Bank URLs, OTP Scam SMS, 140 Telemarketers, NFC Relay Attacks*) to test Viking's AI classification instantly.
+1. **Zero telemetry. Zero cloud.** No OkHttp/Retrofit scanning pipelines. The only
+   network use in the entire app is the optional one-time Gemma model download —
+   which you trigger, and which contains no user data.
+2. **Hardware-rooted database key.** The SQLCipher passphrase is random per install,
+   wrapped by an AES-256-GCM key sealed inside the Android Keystore, and only ever
+   persisted as ciphertext. Steal the backup, get nothing.
+3. **Prompt-injection hardening.** Scam text IS adversarial input. Injection patterns
+   are detected before inference and quarantined into a HIGH-severity verdict instead
+   of reaching the model.
+4. **DPDP Act 2023 aligned.** Raw message bodies are masked into feature vectors
+   before any processing; logs rotate at 3x1MB in app-private storage.
 
 ---
 
-## 📊 Performance & Benchmark Metrics
+## Build It Yourself
 
-Evaluated across 60 real-world mobile threat scenarios:
-
-| Metric | Benchmark Result |
-| :--- | :--- |
-| **Scam Domain Detection** | **606 / 606 (100%)** known phishing & scam domains detected correctly |
-| **Asset Load Time** | **8.09 ms** (606 domains, 236 urgency words, 21 prefixes, 141 trusted packages) |
-| **Peak Memory Footprint** | **0.15 MB** (Asset cache footprint) |
-| **Direct Bypass Rate** | **31.7%** (19 / 60 scenarios resolved without model invocation) |
-| **Avg Prompt Length** | **13 tokens** (Strict 280 token bound enforced) |
-| **Decision Latency** | **< 0.01 ms** (Rule Engine) / **< 450 ms** (Gemma INT4 CPU Engine) |
-| **Battery Consumption** | **< 0.2% per day** (WorkManager periodic execution with `BATTERY_NOT_LOW`) |
-
----
-
-## 🔐 Privacy & Compliance
-
-1. **Zero Network Infrastructure**: Absolutely zero `HttpURLConnection`, `OkHttp`, or `Retrofit` imports anywhere in the codebase.
-2. **DPDP Act 2023 Compliant**: No raw user messages, call audio, or contact lists leave the device or enter persistent logs.
-3. **Hardware Encrypted Database**: Room DB encrypted using SQLCipher with a 256-bit passphrase stored securely in Android SharedPreferences.
-4. **Local Rotating Logs Only**: Debug logs are written exclusively to `context.filesDir/logs/` with strict rotating 3x1MB file caps.
-
----
-
-## 📂 Project Structure
-
-```
-viking/
-├── app/
-│   ├── viking-rules.pro
-│   └── src/main/
-│       ├── AndroidManifest.xml
-│       ├── assets/
-│       │   ├── gemma-270m-it-cpu-int4.bin
-│       │   ├── scam_domains.txt
-│       │   ├── urgency_words.txt
-│       │   ├── scam_prefixes.txt
-│       │   └── trusted_packages.txt
-│       └── java/com/apocalyptolabs/viking/
-│           ├── VikingApplication.kt
-│           ├── MainActivity.kt
-│           ├── core/
-│           │   ├── ai/ (GemmaEngine, ThreatClassifier, PromptBuilder)
-│           │   ├── model/ (ThreatType, ThreatResult, Severity, SecurityEnums)
-│           │   └── util/ (VikingLogger, PermissionChecker, PdfReportGenerator)
-│           ├── data/
-│           │   ├── db/ (VikingDatabase, ThreatLogEntity, SQLCipher)
-│           │   └── repository/ (ThreatRepository)
-│           ├── domain/usecase/ (6 Shield Use Cases)
-│           ├── service/ (AccessibilityService, SmsReceiver, CallMonitor, NfcMonitor)
-│           └── ui/ (Dashboard, ModuleInspector, ThreatLog, Scanner, Permissions, Sandbox)
-└── tools/
-    ├── benchmark/run_benchmark.py
-    └── demo/DEMO_SCRIPT.md
+```bash
+git clone https://github.com/RABNEER/Viking.git
+cd Viking
+./gradlew assembleDebug          # debug build
+./gradlew assembleRelease        # signed release (needs keystore.properties)
 ```
 
+Requirements: Android Studio Ladybug+, JDK 17, Android SDK 35.
+
+> **First launch:** grant SMS/Call-log permissions, then grab the ~180MB Gemma 270M
+> INT4 model from Settings → On-Device AI Engine. Until then, all six shields still
+> run on the static rules engine.
+
 ---
 
-## 👤 Team & Attribution
+<div align="center">
 
-Built with ❤️ by **Ranveer Kumar** · Apocalypto Labs  
+Built by **Ranveer Kumar** · Apocalypto Labs
 *Telecom Centre of Excellence (TCOE) · India Mobile Congress (IMC) 2026 Innovation Initiative*
+
+**Star this repo if you believe security shouldn't cost you your privacy**
+
+</div>

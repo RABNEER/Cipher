@@ -3,6 +3,9 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <!-- Permissions for Viking On-Device Cybersecurity Agent -->
+    <!-- INTERNET is used ONLY for the optional one-time Gemma model provisioning download.
+         All threat analysis, inference and storage remain 100% on-device. -->
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <!-- Hardware feature declarations for permissions -->
     <uses-feature android:name="android.hardware.telephony" android:required="false" />
@@ -138,6 +141,16 @@
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.SIM_STATE_CHANGED" />
+            </intent-filter>
+        </receiver>
+
+        <!-- Restart protection shields after device reboot -->
+        <receiver
+            android:name=".service.VikingBootReceiver"
+            android:enabled="true"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
 

@@ -17,7 +17,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.apocalyptolabs.viking.core.ai.DownloadState
-import com.apocalyptolabs.viking.core.util.PdfReportGenerator
 import com.apocalyptolabs.viking.ui.theme.*
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -203,11 +202,12 @@ fun SettingsScreen(
 
                     Button(
                         onClick = {
-                            try {
-                                val pdfFile = PdfReportGenerator.generateSecurityCertificatePdf(context, emptyList(), 0)
-                                Toast.makeText(context, "Certificate PDF generated: ${pdfFile.name}", Toast.LENGTH_LONG).show()
-                            } catch (e: Exception) {
-                                Toast.makeText(context, "Failed to generate PDF report", Toast.LENGTH_SHORT).show()
+                            viewModel.generateCertificatePdf { pdfFile ->
+                                if (pdfFile != null) {
+                                    Toast.makeText(context, "Certificate PDF generated: ${pdfFile.name}", Toast.LENGTH_LONG).show()
+                                } else {
+                                    Toast.makeText(context, "Failed to generate PDF report", Toast.LENGTH_SHORT).show()
+                                }
                             }
                         },
                         colors = ButtonDefaults.buttonColors(containerColor = VikingNavy),

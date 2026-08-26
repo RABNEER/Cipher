@@ -143,7 +143,10 @@ class ScanApkUseCase @Inject constructor(
                 explanation = "Failed to parse APK file: ${e.localizedMessage}",
                 action = "Exercise caution before installing this APK package."
             )
-            repository.logThreat(fallback)
+            try {
+                repository.logThreat(fallback)
+            } catch (_: Throwable) {
+            }
             return fallback
         } finally {
             tempFile?.delete()

@@ -85,6 +85,7 @@ class GemmaDownloader @Inject constructor(
             if (tempFile.renameTo(destFile)) {
                 _downloadState.value = DownloadState.Installed
                 VikingLogger.i("Gemma model download completed & installed successfully.", TAG)
+                gemmaEngine.reinitialize()
             } else {
                 throw IllegalStateException("Failed to rename temp model file.")
             }
@@ -100,6 +101,7 @@ class GemmaDownloader @Inject constructor(
         val deleted = destFile.delete()
         if (deleted) {
             _downloadState.value = DownloadState.NotInstalled
+            gemmaEngine.reinitialize()
         }
         return deleted
     }

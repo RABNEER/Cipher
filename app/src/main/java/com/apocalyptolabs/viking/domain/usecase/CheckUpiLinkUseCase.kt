@@ -50,19 +50,21 @@ class CheckUpiLinkUseCase @Inject constructor(
         val startTime = System.currentTimeMillis()
         val cleanUrl = rawUrl.trim()
 
-        val withoutScheme = cleanUrl
-            .removePrefix("http://")
-            .removePrefix("https://")
-            .removePrefix("upi://pay?")
-            .removePrefix("upi://")
+        // UPI deep links (upi://pay?pa=vpa@bank&...) carry a payee VPA, not a web domain.
+        val isUpiScheme = cleanUrl.startsWith("upi://", ignoreCase = true)
+        val domain = if (isUpiScheme) {
+            extractUpiPayeeDomain(cleanUrl)
+        } else {
+            cleanUrl
+                .removePrefix("http://")
+                .removePrefix("https://")
+                .split("/", "?", "#", "&", ":")[0]
+                .lowercase()
+        }
 
-        val domain = withoutScheme
-            .split("/", "?", "#", "&", ":")[0]
-            .lowercase()
+        val hasHttps = cleanUrl.startsWith("https://", ignoreCase = true)
 
-        val hasHttps = cleanUrl.startsWith("https://")
-
-        if (domain.startsWith("xn--") || domain.contains(".xn--") || cleanUrl.contains("xn--")) {
+        if (!isUpiScheme && (domain.startsWith("xn--") || domain.contains(".xn--"))) {
             val punyResult = ThreatResult(
                 target = domain,
                 type = ThreatType.UPI,
@@ -74,20 +76,33 @@ class CheckUpiLinkUseCase @Inject constructor(
             return punyResult
         }
 
+        if (isUpiScheme && domain.isBlank()) {
+            val opaqueResult = ThreatResult(
+                target = "UPI Deep Link",
+                type = ThreatType.UPI,
+                severity = Severity.MEDIUM,
+                explanation = "UPI payment link with an unreadable payee address. Payee identity cannot be verified on-device.",
+                action = "Verify the payee name inside your UPI app before entering any PIN."
+            )
+            safeLog(opaqueResult, System.currentTimeMillis() - startTime)
+            return opaqueResult
+        }
+
         val isShortener = KNOWN_SHORTENERS.contains(domain)
 
+        // Homoglyph normalization must ONLY map visually confusable Unicode
+        // characters. Mapping ASCII digits ("0"->"o") or substrings ("rn"->"m")
+        // flags legitimate domains like modernpay.com as fake.
         val normalizedDomain = domain
             .replace('а', 'a')
             .replace('е', 'e')
             .replace('о', 'o')
             .replace('р', 'p')
             .replace('с', 'c')
-            .replace("0", "o")
-            .replace("1", "l")
-            .replace("rn", "m")
+            .replace('х', 'x')
 
         val isKnownScam = scamDomainsCache.contains(domain) || scamDomainsCache.contains(normalizedDomain)
-        val subdomainCount = (domain.split(".").size - 2).coerceAtLeast(0)
+        val subdomainCount = if (domain.isNotBlank()) (domain.split(".").size - 2).coerceAtLeast(0) else 0
         val containsUpiKeywords = UPI_KEYWORDS.any { domain.contains(it) || cleanUrl.lowercase().contains(it) }
 
         val directReturn = PromptBuilder.checkUpiDirectReturn(
@@ -133,6 +148,17 @@ class CheckUpiLinkUseCase @Inject constructor(
             repository.logThreat(threat, duration)
         } catch (e: Throwable) {
             // Ignored in test doubles
+        }
+    }
+
+    private fun extractUpiPayeeDomain(upiUrl: String): String {
+        return try {
+            val uri = android.net.Uri.parse(upiUrl)
+            val vpa = uri.getQueryParameter("pa") ?: return ""
+            val domainPart = vpa.substringAfter('@', "").trim()
+            if (domainPart.isBlank()) "" else domainPart.lowercase()
+        } catch (_: Exception) {
+            ""
         }
     }
 }

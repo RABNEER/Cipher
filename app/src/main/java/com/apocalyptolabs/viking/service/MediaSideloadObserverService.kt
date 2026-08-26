@@ -16,6 +16,9 @@ import com.apocalyptolabs.viking.domain.usecase.ScanApkUseCase
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.io.File
 import javax.inject.Inject
@@ -26,7 +29,10 @@ class MediaSideloadObserverService : Service() {
     @Inject
     lateinit var scanApkUseCase: ScanApkUseCase
 
-    private val serviceScope = CoroutineScope(Dispatchers.IO)
+    @Inject
+    lateinit var threatRepository: com.apocalyptolabs.viking.data.repository.ThreatRepository
+
+    private val serviceScope = CoroutineScope(Dispatchers.IO + kotlinx.coroutines.SupervisorJob())
     private var fileObserver: FileObserver? = null
 
     companion object {
@@ -63,6 +69,8 @@ class MediaSideloadObserverService : Service() {
     private fun scanDetectedApk(file: File) {
         serviceScope.launch {
             try {
+                val apkScanEnabled = threatRepository.moduleStatusMap.first()["APK"] ?: true
+                if (!apkScanEnabled) return@launch
                 val uri = Uri.fromFile(file)
                 val result = scanApkUseCase(uri)
                 if (result.severity == Severity.HIGH || result.severity == Severity.CRITICAL) {
@@ -78,6 +86,7 @@ class MediaSideloadObserverService : Service() {
         super.onDestroy()
         fileObserver?.stopWatching()
         fileObserver = null
+        serviceScope.cancel()
     }
 
     override fun onBind(intent: Intent?): IBinder? = null

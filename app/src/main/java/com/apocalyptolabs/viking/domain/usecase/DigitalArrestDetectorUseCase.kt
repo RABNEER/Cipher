@@ -2,6 +2,7 @@ package com.apocalyptolabs.viking.domain.usecase
 
 import com.apocalyptolabs.viking.core.ai.PromptBuilder
 import com.apocalyptolabs.viking.core.ai.ThreatClassifier
+import com.apocalyptolabs.viking.core.model.CallerType
 import com.apocalyptolabs.viking.core.model.Severity
 import com.apocalyptolabs.viking.core.model.ThreatResult
 import com.apocalyptolabs.viking.core.model.ThreatType
@@ -13,16 +14,22 @@ class DigitalArrestDetectorUseCase @Inject constructor(
     private val repository: ThreatRepository
 ) {
     private val DIGITAL_ARREST_KEYWORDS = listOf(
-        "cbi", "police", "customs", "narcotics", "ed", "enforcement directorate",
+        "cbi", "police", "customs", "narcotics", "enforcement directorate",
         "digital arrest", "digital custody", "video interrogation", "skype call",
-        "parcel seized", "illegal package", "aadhaar blocked", "warrant issued"
+        "parcel seized", "illegal package", "parcel with drugs", "aadhaar blocked",
+        "warrant issued", "arrest warrant", "money laundering case"
     )
+
+    private val KEYWORD_REGEXES = DIGITAL_ARREST_KEYWORDS.map {
+        Regex("\\b${Regex.escape(it)}\\b", RegexOption.IGNORE_CASE)
+    }
 
     suspend operator fun invoke(callerOrSender: String, textOrTranscript: String): ThreatResult {
         val startTime = System.currentTimeMillis()
-        val lowerText = textOrTranscript.lowercase()
 
-        val matchedKeywords = DIGITAL_ARREST_KEYWORDS.filter { lowerText.contains(it) }
+        val matchedKeywords = KEYWORD_REGEXES.withIndex()
+            .filter { it.value.containsMatchIn(textOrTranscript) }
+            .map { DIGITAL_ARREST_KEYWORDS[it.index] }
 
         if (matchedKeywords.isNotEmpty()) {
             val criticalResult = ThreatResult(
@@ -32,12 +39,12 @@ class DigitalArrestDetectorUseCase @Inject constructor(
                 explanation = "DIGITAL ARREST FRAUD DETECTED! Scammer impersonating law enforcement (${matchedKeywords.joinToString(", ")}). Indian Law Enforcement NEVER conducts arrests or demands money over video/phone calls.",
                 action = "DISCONNECT IMMEDIATELY. Do not transfer funds. Report immediately to 1930 Cybercrime Helpline."
             )
-            repository.logThreat(criticalResult, System.currentTimeMillis() - startTime)
+            safeLog(criticalResult, System.currentTimeMillis() - startTime)
             return criticalResult
         }
 
         val prompt = PromptBuilder.callPrompt(
-            callerType = com.apocalyptolabs.viking.core.model.CallerType.DOMESTIC_UNKNOWN,
+            callerType = CallerType.DOMESTIC_UNKNOWN,
             callDurationSeconds = 60,
             isRepeatCaller = false,
             prefixRiskScore = 5,
@@ -45,7 +52,14 @@ class DigitalArrestDetectorUseCase @Inject constructor(
         )
 
         val result = classifier.classify(prompt, callerOrSender, ThreatType.CALL)
-        repository.logThreat(result, System.currentTimeMillis() - startTime)
+        safeLog(result, System.currentTimeMillis() - startTime)
         return result
+    }
+
+    private suspend fun safeLog(threat: ThreatResult, duration: Long) {
+        try {
+            repository.logThreat(threat, duration)
+        } catch (_: Throwable) {
+        }
     }
 }

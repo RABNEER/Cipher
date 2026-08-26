@@ -13,11 +13,17 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.security.MessageDigest
+import java.util.concurrent.CompletableFuture
+import java.util.concurrent.ExecutionException
 import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.TimeoutException
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -41,16 +47,15 @@ open class GemmaEngine @Inject constructor(
     private val _engineState = MutableStateFlow<EngineState>(EngineState.Loading)
     val engineState: StateFlow<EngineState> = _engineState.asStateFlow()
 
-    val isReady: StateFlow<Boolean> = MutableStateFlow(false).apply {
-        CoroutineScope(Dispatchers.Main).launch {
-            _engineState.collect { value = (it is EngineState.Ready || it is EngineState.Inferring) }
-        }
-    }
+    private val _isReady = MutableStateFlow(false)
+    val isReady: StateFlow<Boolean> = _isReady.asStateFlow()
 
     private var llmInference: LlmInference? = null
     private var isBatteryLow = false
+    private val initMutex = Mutex()
 
     private val inferenceDispatcher = Executors.newSingleThreadExecutor().asCoroutineDispatcher()
+    private val nativeExecutor = Executors.newSingleThreadExecutor()
     private val scope = CoroutineScope(inferenceDispatcher + SupervisorJob())
 
     companion object {
@@ -70,6 +75,18 @@ open class GemmaEngine @Inject constructor(
         }
     }
 
+    private fun setState(state: EngineState) {
+        _engineState.value = state
+        _isReady.value = state is EngineState.Ready || state is EngineState.Inferring
+    }
+
+    fun reinitialize() {
+        scope.launch {
+            VikingLogger.i("Reinitializing Gemma engine on demand.", TAG)
+            initModel()
+        }
+    }
+
     private fun registerBatteryReceiver() {
         val filter = IntentFilter(Intent.ACTION_BATTERY_LOW).apply {
             addAction(Intent.ACTION_BATTERY_OKAY)
@@ -79,13 +96,13 @@ open class GemmaEngine @Inject constructor(
                 when (intent?.action) {
                     Intent.ACTION_BATTERY_LOW -> {
                         isBatteryLow = true
-                        _engineState.value = EngineState.LowBatteryThrottled
+                        setState(EngineState.LowBatteryThrottled)
                         VikingLogger.w("Battery low. Throttling Gemma AI model to static rules engine.", TAG)
                     }
                     Intent.ACTION_BATTERY_OKAY -> {
                         isBatteryLow = false
                         if (llmInference != null) {
-                            _engineState.value = EngineState.Ready
+                            setState(EngineState.Ready)
                         }
                     }
                 }
@@ -94,39 +111,43 @@ open class GemmaEngine @Inject constructor(
     }
 
     private suspend fun initModel() = withContext(inferenceDispatcher) {
-        _engineState.value = EngineState.Loading
-        try {
-            val modelFile = getOrExtractModelFile()
-            if (!modelFile.exists() || modelFile.length() == 0L) {
-                val errMsg = "Model file $MODEL_NAME not found or empty."
-                VikingLogger.w(errMsg, TAG)
-                _engineState.value = EngineState.Error(errMsg)
-                return@withContext
-            }
-
-            if (EXPECTED_SHA256.isNotBlank()) {
-                val checksum = computeSha256(modelFile)
-                if (!checksum.equals(EXPECTED_SHA256, ignoreCase = true)) {
-                    val errMsg = "SHA-256 checksum mismatch for model file."
-                    VikingLogger.e(errMsg, tag = TAG)
-                    _engineState.value = EngineState.Error(errMsg)
-                    return@withContext
+        initMutex.withLock {
+            if (_engineState.value is EngineState.Ready || _engineState.value is EngineState.Inferring) return@withLock
+            setState(EngineState.Loading)
+            try {
+                val modelFile = getOrExtractModelFile()
+                if (!modelFile.exists() || modelFile.length() == 0L) {
+                    val errMsg = "AI model not found on device. Download it from Settings to enable deep analysis."
+                    VikingLogger.w(errMsg, TAG)
+                    setState(EngineState.Error(errMsg))
+                    return@withLock
                 }
+
+                if (EXPECTED_SHA256.isNotBlank()) {
+                    val checksum = computeSha256(modelFile)
+                    if (!checksum.equals(EXPECTED_SHA256, ignoreCase = true)) {
+                        val errMsg = "SHA-256 checksum mismatch for model file."
+                        VikingLogger.e(errMsg, tag = TAG)
+                        setState(EngineState.Error(errMsg))
+                        return@withLock
+                    }
+                }
+
+                val options = LlmInference.LlmInferenceOptions.builder()
+                    .setModelPath(modelFile.absolutePath)
+                    .setMaxTokens(MAX_TOKENS)
+                    .setTemperature(TEMPERATURE)
+                    .build()
+
+                llmInference = LlmInference.createFromOptions(context, options)
+                setState(EngineState.Ready)
+                VikingLogger.i("Gemma 270M loaded and ready.", TAG)
+
+            } catch (e: Exception) {
+                VikingLogger.e("Initialization failed for Gemma engine", e, TAG)
+                llmInference = null
+                setState(EngineState.Error(e.localizedMessage ?: "Engine init error"))
             }
-
-            val options = LlmInference.LlmInferenceOptions.builder()
-                .setModelPath(modelFile.absolutePath)
-                .setMaxTokens(MAX_TOKENS)
-                .setTemperature(TEMPERATURE)
-                .build()
-
-            llmInference = LlmInference.createFromOptions(context, options)
-            _engineState.value = EngineState.Ready
-            VikingLogger.i("Gemma 270M loaded and ready.", TAG)
-
-        } catch (e: Exception) {
-            VikingLogger.e("Initialization failed for Gemma engine", e, TAG)
-            _engineState.value = EngineState.Error(e.localizedMessage ?: "Engine init error")
         }
     }
 
@@ -134,39 +155,29 @@ open class GemmaEngine @Inject constructor(
         if (isBatteryLow) {
             throw IllegalStateException("Low battery throttling active. Operating on static rule engine.")
         }
-        if (_engineState.value !is EngineState.Ready && _engineState.value !is EngineState.Inferring) {
-            throw IllegalStateException("GemmaEngine is not ready for inference.")
+        if (_isReady.value && _engineState.value !is EngineState.Ready) {
+            throw IllegalStateException("GemmaEngine is busy.")
+        }
+        val engine = llmInference ?: run {
+            setState(EngineState.Error("AI model not loaded. Download it from Settings."))
+            throw IllegalStateException("LlmInference is null")
         }
 
-        _engineState.value = EngineState.Inferring
-
-        var attempt = 0
-        var lastException: Exception? = null
-
-        while (attempt < 2) {
+        setState(EngineState.Inferring)
+        try {
+            val future = CompletableFuture.supplyAsync({ engine.generateResponse(prompt).trim() }, nativeExecutor)
             try {
-                attempt++
-                val result = withTimeout(INFERENCE_TIMEOUT_MS) {
-                    val engine = llmInference ?: throw IllegalStateException("LlmInference is null")
-                    engine.generateResponse(prompt).trim()
-                }
-                _engineState.value = EngineState.Ready
-                return@withContext result
-            } catch (e: TimeoutCancellationException) {
-                VikingLogger.w("Inference timed out on attempt $attempt", TAG)
-                lastException = e
-            } catch (e: Exception) {
-                VikingLogger.w("Inference error on attempt $attempt: ${e.localizedMessage}", TAG)
-                lastException = e
+                future.get(INFERENCE_TIMEOUT_MS, TimeUnit.MILLISECONDS)
+            } catch (e: ExecutionException) {
+                throw e.cause ?: e
+            } catch (e: TimeoutException) {
+                future.cancel(true)
+                VikingLogger.w("Inference exceeded ${INFERENCE_TIMEOUT_MS}ms budget.", TAG)
+                throw IllegalStateException("Inference timed out after ${INFERENCE_TIMEOUT_MS}ms.")
             }
-
-            if (attempt < 2) {
-                delay(300L * attempt)
-            }
+        } finally {
+            if (llmInference != null) setState(EngineState.Ready)
         }
-
-        _engineState.value = EngineState.Ready
-        throw lastException ?: RuntimeException("Inference failed after retries.")
     }
 
     private fun getOrExtractModelFile(): File {
@@ -204,7 +215,7 @@ open class GemmaEngine @Inject constructor(
             VikingLogger.w("Critical memory trim event received. Releasing Gemma model instance.", TAG)
             scope.launch {
                 llmInference = null
-                _engineState.value = EngineState.Loading
+                setState(EngineState.Loading)
                 initModel()
             }
         }

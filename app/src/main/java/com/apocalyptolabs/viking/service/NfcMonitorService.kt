@@ -16,6 +16,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -24,6 +25,9 @@ class NfcMonitorService : Service() {
 
     @Inject
     lateinit var monitorNfcUseCase: MonitorNfcUseCase
+
+    @Inject
+    lateinit var threatRepository: com.apocalyptolabs.viking.data.repository.ThreatRepository
 
     private val serviceScope = CoroutineScope(Dispatchers.IO)
     private var nfcAdapter: NfcAdapter? = null
@@ -59,6 +63,8 @@ class NfcMonitorService : Service() {
 
             serviceScope.launch {
                 try {
+                    val nfcEnabled = threatRepository.moduleStatusMap.first()["NFC"] ?: true
+                    if (!nfcEnabled) return@launch
                     monitorNfcUseCase(tagType, dataSize, payloadUrl, true, latency)
                 } catch (e: Exception) {
                     VikingLogger.e("Error analyzing NFC event", e, TAG)

@@ -24,12 +24,13 @@ class ThreatClassifier(
         target: String,
         type: ThreatType
     ): ThreatResult {
+        PromptBuilder.detectInjection(prompt)?.let { injectionTerm ->
+            VikingLogger.w("Prompt injection detected and blocked: $injectionTerm", TAG)
+            return PromptBuilder.buildInjectionDetectedResult(target, type)
+        }
         return try {
             val rawResponse = inferenceEngine.infer(prompt)
             parseResponse(rawResponse, target, type)
-        } catch (e: PromptInjectionException) {
-            VikingLogger.w("Prompt injection detected and blocked: ${e.injectionTerm}", TAG)
-            PromptBuilder.buildInjectionDetectedResult(target, type)
         } catch (e: Exception) {
             VikingLogger.w("Inference fallback triggered for $target ($type)", TAG)
             fallbackResult(target, type, "Scan engine unavailable or execution timed out. Exercise caution.")

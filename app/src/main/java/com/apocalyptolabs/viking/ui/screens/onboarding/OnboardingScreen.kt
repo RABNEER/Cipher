@@ -186,7 +186,10 @@ fun OnboardingScreen(
         }
 
         Button(
-            onClick = onOnboardingComplete,
+            onClick = {
+                viewModel.completeOnboarding()
+                onOnboardingComplete()
+            },
             colors = ButtonDefaults.buttonColors(containerColor = VikingTeal),
             enabled = permissionsState.allPermissionsGranted,
             shape = RoundedCornerShape(12.dp),

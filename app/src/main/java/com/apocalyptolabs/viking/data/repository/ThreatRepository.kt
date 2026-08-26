@@ -95,10 +95,12 @@ class ThreatRepository @Inject constructor(
     }
 
     private suspend fun incrementBlockedThreats() {
-        context.dataStore.edit { prefs ->
+        val newTotal = context.dataStore.edit { prefs ->
             val current = prefs[KEY_TOTAL_THREATS_BLOCKED] ?: 0
             prefs[KEY_TOTAL_THREATS_BLOCKED] = current + 1
-        }
+        }[KEY_TOTAL_THREATS_BLOCKED] ?: 0
+        // Keep the Quick Settings tile subtitle in sync with the live counter.
+        com.apocalyptolabs.viking.service.VikingServiceState.updateBlockedCount(newTotal)
     }
 
     suspend fun toggleModule(moduleKey: String, enabled: Boolean) {
