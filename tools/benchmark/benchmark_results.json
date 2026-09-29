@@ -1,0 +1,482 @@
+[
+  {
+    "scenario_id": "apk_1",
+    "threat_type": "APK",
+    "expected_severity": "SAFE",
+    "direct_return": false,
+    "prompt_tokens": 14,
+    "time_ms": 0.006699992809444666
+  },
+  {
+    "scenario_id": "apk_2",
+    "threat_type": "APK",
+    "expected_severity": "SAFE",
+    "direct_return": false,
+    "prompt_tokens": 14,
+    "time_ms": 0.001900014467537403
+  },
+  {
+    "scenario_id": "apk_3",
+    "threat_type": "APK",
+    "expected_severity": "LOW",
+    "direct_return": false,
+    "prompt_tokens": 15,
+    "time_ms": 0.0028999638743698597
+  },
+  {
+    "scenario_id": "apk_4",
+    "threat_type": "APK",
+    "expected_severity": "LOW",
+    "direct_return": false,
+    "prompt_tokens": 15,
+    "time_ms": 0.001400010660290718
+  },
+  {
+    "scenario_id": "apk_5",
+    "threat_type": "APK",
+    "expected_severity": "HIGH",
+    "direct_return": false,
+    "prompt_tokens": 17,
+    "time_ms": 0.001800013706088066
+  },
+  {
+    "scenario_id": "apk_6",
+    "threat_type": "APK",
+    "expected_severity": "HIGH",
+    "direct_return": false,
+    "prompt_tokens": 17,
+    "time_ms": 0.001500011421740055
+  },
+  {
+    "scenario_id": "apk_7",
+    "threat_type": "APK",
+    "expected_severity": "CRITICAL",
+    "direct_return": false,
+    "prompt_tokens": 15,
+    "time_ms": 0.0013999524526298046
+  },
+  {
+    "scenario_id": "apk_8",
+    "threat_type": "APK",
+    "expected_severity": "CRITICAL",
+    "direct_return": false,
+    "prompt_tokens": 15,
+    "time_ms": 0.00200001522898674
+  },
+  {
+    "scenario_id": "apk_9",
+    "threat_type": "APK",
+    "expected_severity": "HIGH",
+    "direct_return": false,
+    "prompt_tokens": 14,
+    "time_ms": 0.001100008375942707
+  },
+  {
+    "scenario_id": "apk_10",
+    "threat_type": "APK",
+    "expected_severity": "HIGH",
+    "direct_return": false,
+    "prompt_tokens": 14,
+    "time_ms": 0.000800006091594696
+  },
+  {
+    "scenario_id": "upi_1",
+    "threat_type": "UPI",
+    "expected_severity": "CRITICAL",
+    "direct_return": true,
+    "prompt_tokens": 0,
+    "time_ms": 0.000300002284348011
+  },
+  {
+    "scenario_id": "upi_2",
+    "threat_type": "UPI",
+    "expected_severity": "CRITICAL",
+    "direct_return": true,
+    "prompt_tokens": 0,
+    "time_ms": 0.000300002284348011
+  },
+  {
+    "scenario_id": "upi_3",
+    "threat_type": "UPI",
+    "expected_severity": "CRITICAL",
+    "direct_return": true,
+    "prompt_tokens": 0,
+    "time_ms": 0.000300002284348011
+  },
+  {
+    "scenario_id": "upi_4",
+    "threat_type": "UPI",
+    "expected_severity": "HIGH",
+    "direct_return": true,
+    "prompt_tokens": 0,
+    "time_ms": 0.000200001522898674
+  },
+  {
+    "scenario_id": "upi_5",
+    "threat_type": "UPI",
+    "expected_severity": "HIGH",
+    "direct_return": true,
+    "prompt_tokens": 0,
+    "time_ms": 0.000200001522898674
+  },
+  {
+    "scenario_id": "upi_6",
+    "threat_type": "UPI",
+    "expected_severity": "HIGH",
+    "direct_return": false,
+    "prompt_tokens": 12,
+    "time_ms": 0.001200009137392044
+  },
+  {
+    "scenario_id": "upi_7",
+    "threat_type": "UPI",
+    "expected_severity": "HIGH",
+    "direct_return": false,
+    "prompt_tokens": 12,
+    "time_ms": 0.000800006091594696
+  },
+  {
+    "scenario_id": "upi_8",
+    "threat_type": "UPI",
+    "expected_severity": "SAFE",
+    "direct_return": false,
+    "prompt_tokens": 12,
+    "time_ms": 0.001100008375942707
+  },
+  {
+    "scenario_id": "upi_9",
+    "threat_type": "UPI",
+    "expected_severity": "SAFE",
+    "direct_return": false,
+    "prompt_tokens": 12,
+    "time_ms": 0.000700005330145359
+  },
+  {
+    "scenario_id": "upi_10",
+    "threat_type": "UPI",
+    "expected_severity": "SAFE",
+    "direct_return": false,
+    "prompt_tokens": 12,
+    "time_ms": 0.000500003807246685
+  },
+  {
+    "scenario_id": "sms_1",
+    "threat_type": "SMS",
+    "expected_severity": "SAFE",
+    "direct_return": true,
+    "prompt_tokens": 0,
+    "time_ms": 0.000600004568696022
+  },
+  {
+    "scenario_id": "sms_2",
+    "threat_type": "SMS",
+    "expected_severity": "SAFE",
+    "direct_return": true,
+    "prompt_tokens": 0,
+    "time_ms": 0.000200001522898674
+  },
+  {
+    "scenario_id": "sms_3",
+    "threat_type": "SMS",
+    "expected_severity": "HIGH",
+    "direct_return": false,
+    "prompt_tokens": 14,
+    "time_ms": 0.001400010660290718
+  },
+  {
+    "scenario_id": "sms_4",
+    "threat_type": "SMS",
+    "expected_severity": "HIGH",
+    "direct_return": false,
+    "prompt_tokens": 14,
+    "time_ms": 0.0007999478839337826
+  },
+  {
+    "scenario_id": "sms_5",
+    "threat_type": "SMS",
+    "expected_severity": "HIGH",
+    "direct_return": false,
+    "prompt_tokens": 14,
+    "time_ms": 0.000900006853044033
+  },
+  {
+    "scenario_id": "sms_6",
+    "threat_type": "SMS",
+    "expected_severity": "MEDIUM",
+    "direct_return": false,
+    "prompt_tokens": 14,
+    "time_ms": 0.000800006091594696
+  },
+  {
+    "scenario_id": "sms_7",
+    "threat_type": "SMS",
+    "expected_severity": "LOW",
+    "direct_return": false,
+    "prompt_tokens": 14,
+    "time_ms": 0.000800006091594696
+  },
+  {
+    "scenario_id": "sms_8",
+    "threat_type": "SMS",
+    "expected_severity": "SAFE",
+    "direct_return": false,
+    "prompt_tokens": 14,
+    "time_ms": 0.001100008375942707
+  },
+  {
+    "scenario_id": "sms_9",
+    "threat_type": "SMS",
+    "expected_severity": "SAFE",
+    "direct_return": false,
+    "prompt_tokens": 14,
+    "time_ms": 0.000800006091594696
+  },
+  {
+    "scenario_id": "sms_10",
+    "threat_type": "SMS",
+    "expected_severity": "CRITICAL",
+    "direct_return": false,
+    "prompt_tokens": 14,
+    "time_ms": 0.000800006091594696
+  },
+  {
+    "scenario_id": "call_1",
+    "threat_type": "CALL",
+    "expected_severity": "CRITICAL",
+    "direct_return": true,
+    "prompt_tokens": 0,
+    "time_ms": 0.000200001522898674
+  },
+  {
+    "scenario_id": "call_2",
+    "threat_type": "CALL",
+    "expected_severity": "CRITICAL",
+    "direct_return": true,
+    "prompt_tokens": 0,
+    "time_ms": 0.000200001522898674
+  },
+  {
+    "scenario_id": "call_3",
+    "threat_type": "CALL",
+    "expected_severity": "HIGH",
+    "direct_return": true,
+    "prompt_tokens": 0,
+    "time_ms": 0.000100000761449337
+  },
+  {
+    "scenario_id": "call_4",
+    "threat_type": "CALL",
+    "expected_severity": "HIGH",
+    "direct_return": true,
+    "prompt_tokens": 0,
+    "time_ms": 0.000300002284348011
+  },
+  {
+    "scenario_id": "call_5",
+    "threat_type": "CALL",
+    "expected_severity": "LOW",
+    "direct_return": false,
+    "prompt_tokens": 12,
+    "time_ms": 0.000900006853044033
+  },
+  {
+    "scenario_id": "call_6",
+    "threat_type": "CALL",
+    "expected_severity": "HIGH",
+    "direct_return": false,
+    "prompt_tokens": 12,
+    "time_ms": 0.000700005330145359
+  },
+  {
+    "scenario_id": "call_7",
+    "threat_type": "CALL",
+    "expected_severity": "SAFE",
+    "direct_return": false,
+    "prompt_tokens": 12,
+    "time_ms": 0.000500003807246685
+  },
+  {
+    "scenario_id": "call_8",
+    "threat_type": "CALL",
+    "expected_severity": "MEDIUM",
+    "direct_return": false,
+    "prompt_tokens": 12,
+    "time_ms": 0.000700005330145359
+  },
+  {
+    "scenario_id": "call_9",
+    "threat_type": "CALL",
+    "expected_severity": "SAFE",
+    "direct_return": false,
+    "prompt_tokens": 12,
+    "time_ms": 0.0007999478839337826
+  },
+  {
+    "scenario_id": "call_10",
+    "threat_type": "CALL",
+    "expected_severity": "LOW",
+    "direct_return": false,
+    "prompt_tokens": 12,
+    "time_ms": 0.000500003807246685
+  },
+  {
+    "scenario_id": "nfc_1",
+    "threat_type": "NFC",
+    "expected_severity": "CRITICAL",
+    "direct_return": true,
+    "prompt_tokens": 0,
+    "time_ms": 0.000200001522898674
+  },
+  {
+    "scenario_id": "nfc_2",
+    "threat_type": "NFC",
+    "expected_severity": "CRITICAL",
+    "direct_return": true,
+    "prompt_tokens": 0,
+    "time_ms": 0.000200001522898674
+  },
+  {
+    "scenario_id": "nfc_3",
+    "threat_type": "NFC",
+    "expected_severity": "HIGH",
+    "direct_return": true,
+    "prompt_tokens": 0,
+    "time_ms": 0.000100000761449337
+  },
+  {
+    "scenario_id": "nfc_4",
+    "threat_type": "NFC",
+    "expected_severity": "HIGH",
+    "direct_return": true,
+    "prompt_tokens": 0,
+    "time_ms": 0.000100000761449337
+  },
+  {
+    "scenario_id": "nfc_5",
+    "threat_type": "NFC",
+    "expected_severity": "SAFE",
+    "direct_return": false,
+    "prompt_tokens": 12,
+    "time_ms": 0.001100008375942707
+  },
+  {
+    "scenario_id": "nfc_6",
+    "threat_type": "NFC",
+    "expected_severity": "SAFE",
+    "direct_return": false,
+    "prompt_tokens": 12,
+    "time_ms": 0.000600004568696022
+  },
+  {
+    "scenario_id": "nfc_7",
+    "threat_type": "NFC",
+    "expected_severity": "SAFE",
+    "direct_return": false,
+    "prompt_tokens": 12,
+    "time_ms": 0.000700005330145359
+  },
+  {
+    "scenario_id": "nfc_8",
+    "threat_type": "NFC",
+    "expected_severity": "SAFE",
+    "direct_return": false,
+    "prompt_tokens": 12,
+    "time_ms": 0.0017999554984271526
+  },
+  {
+    "scenario_id": "nfc_9",
+    "threat_type": "NFC",
+    "expected_severity": "MEDIUM",
+    "direct_return": false,
+    "prompt_tokens": 12,
+    "time_ms": 0.000600004568696022
+  },
+  {
+    "scenario_id": "nfc_10",
+    "threat_type": "NFC",
+    "expected_severity": "LOW",
+    "direct_return": false,
+    "prompt_tokens": 12,
+    "time_ms": 0.000500003807246685
+  },
+  {
+    "scenario_id": "perm_1",
+    "threat_type": "PERMISSION",
+    "expected_severity": "CRITICAL",
+    "direct_return": true,
+    "prompt_tokens": 0,
+    "time_ms": 0.000200001522898674
+  },
+  {
+    "scenario_id": "perm_2",
+    "threat_type": "PERMISSION",
+    "expected_severity": "CRITICAL",
+    "direct_return": true,
+    "prompt_tokens": 0,
+    "time_ms": 0.000100000761449337
+  },
+  {
+    "scenario_id": "perm_3",
+    "threat_type": "PERMISSION",
+    "expected_severity": "HIGH",
+    "direct_return": true,
+    "prompt_tokens": 0,
+    "time_ms": 0.000200001522898674
+  },
+  {
+    "scenario_id": "perm_4",
+    "threat_type": "PERMISSION",
+    "expected_severity": "HIGH",
+    "direct_return": true,
+    "prompt_tokens": 0,
+    "time_ms": 0.000100000761449337
+  },
+  {
+    "scenario_id": "perm_5",
+    "threat_type": "PERMISSION",
+    "expected_severity": "MEDIUM",
+    "direct_return": false,
+    "prompt_tokens": 13,
+    "time_ms": 0.0012999516911804676
+  },
+  {
+    "scenario_id": "perm_6",
+    "threat_type": "PERMISSION",
+    "expected_severity": "MEDIUM",
+    "direct_return": false,
+    "prompt_tokens": 13,
+    "time_ms": 0.000900006853044033
+  },
+  {
+    "scenario_id": "perm_7",
+    "threat_type": "PERMISSION",
+    "expected_severity": "SAFE",
+    "direct_return": false,
+    "prompt_tokens": 13,
+    "time_ms": 0.000900006853044033
+  },
+  {
+    "scenario_id": "perm_8",
+    "threat_type": "PERMISSION",
+    "expected_severity": "SAFE",
+    "direct_return": false,
+    "prompt_tokens": 13,
+    "time_ms": 0.000900006853044033
+  },
+  {
+    "scenario_id": "perm_9",
+    "threat_type": "PERMISSION",
+    "expected_severity": "SAFE",
+    "direct_return": false,
+    "prompt_tokens": 13,
+    "time_ms": 0.000800006091594696
+  },
+  {
+    "scenario_id": "perm_10",
+    "threat_type": "PERMISSION",
+    "expected_severity": "SAFE",
+    "direct_return": false,
+    "prompt_tokens": 13,
+    "time_ms": 0.000600004568696022
+  }
+]
