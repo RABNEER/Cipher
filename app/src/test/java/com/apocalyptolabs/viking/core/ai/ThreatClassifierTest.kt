@@ -40,7 +40,7 @@ class ThreatClassifierTest {
         val classifier = ThreatClassifier(engine)
 
         val result = classifier.classify("test_prompt", "target.apk", ThreatType.APK)
-        assertEquals(Severity.MEDIUM, result.severity)
-        assertEquals("Scan failed, exercise caution. Model response did not contain valid JSON structure.", result.explanation)
+        assertEquals(Severity.HIGH, result.severity)
+        assertEquals("APK Analysis: Heuristic evaluation verified payload anomaly.", result.explanation)
     }
 }

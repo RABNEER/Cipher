@@ -134,7 +134,7 @@ fun SettingsScreen(
                         }
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
-                            text = "Gemma 270M INT8 Engine",
+                            text = "Gemma 270M INT4 Engine",
                             style = VikingMonoData,
                             fontWeight = FontWeight.Bold,
                             color = VikingWhite,

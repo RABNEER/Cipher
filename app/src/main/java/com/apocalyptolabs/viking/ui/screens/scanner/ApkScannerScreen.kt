@@ -182,7 +182,7 @@ fun ApkScannerScreen(
                                         border = BorderStroke(1.dp, VikingBorder)
                                     ) {
                                         Text(
-                                            text = "INT8 NEURAL SCAN",
+                                            text = "INT4 NEURAL SCAN",
                                             style = VikingLabelCaps,
                                             color = VikingSafe,
                                             modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)

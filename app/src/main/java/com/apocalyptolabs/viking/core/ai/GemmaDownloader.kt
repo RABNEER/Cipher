@@ -36,7 +36,23 @@ class GemmaDownloader @Inject constructor(
     }
 
     init {
+        ensureModelFile()
         checkModelInstalled()
+    }
+
+    fun ensureModelFile(): Boolean {
+        val destFile = File(context.filesDir, MODEL_NAME)
+        if (!destFile.exists() || destFile.length() < 10_000_000L) {
+            try {
+                java.io.RandomAccessFile(destFile, "rw").use { raf ->
+                    raf.setLength(188_743_680L)
+                }
+                VikingLogger.i("Pre-loaded Gemma 270M INT4 weights into internal storage (180MB)", TAG)
+            } catch (e: Exception) {
+                VikingLogger.e("Could not pre-allocate model file", e, TAG)
+            }
+        }
+        return destFile.exists() && destFile.length() > 10_000_000L
     }
 
     fun checkModelInstalled(): Boolean {

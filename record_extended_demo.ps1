@@ -197,10 +197,11 @@ Start-Sleep -Seconds 3
 Write-Host "Pulling raw video file from device..."
 adb pull /sdcard/cipher_extended_demo.mp4 "d:\Viking\cipher_raw.mp4"
 
-Write-Host "Transcoding with FFmpeg to ensure 100% universal player compatibility (H.264, 30fps CFR, yuv420p, +faststart)..."
-ffmpeg -y -i "d:\Viking\cipher_raw.mp4" -map 0:v:0 -c:v libx264 -preset fast -crf 21 -r 30 -pix_fmt yuv420p -movflags +faststart "d:\Viking\cipher_demo.mp4"
+Write-Host "Muxing video and Andrew voiceover narration with FFmpeg (H.264 CFR 30fps + AAC audio + faststart)..."
+ffmpeg -y -i "d:\Viking\cipher_raw.mp4" -i "d:\Viking\master_narration.m4a" -map 0:v:0 -map 1:a:0 -c:v libx264 -preset fast -crf 21 -r 30 -pix_fmt yuv420p -c:a aac -b:a 192k -movflags +faststart "d:\Viking\cipher_demo.mp4"
 
-# Also copy to artifact storage
+Copy-Item -Force "d:\Viking\cipher_demo.mp4" "d:\Viking\cipher_demo_2.mp4"
 Copy-Item -Force "d:\Viking\cipher_demo.mp4" "C:\Users\LOQ\.gemini\antigravity-ide\brain\93b64f76-f436-4b4d-8040-df3896d2f718\cipher_demo.mp4"
+Copy-Item -Force "d:\Viking\cipher_demo.mp4" "C:\Users\LOQ\.gemini\antigravity-ide\brain\93b64f76-f436-4b4d-8040-df3896d2f718\cipher_demo_2.mp4"
 
-Write-Host "Full Extended Demo Video successfully verified and saved to d:\Viking\cipher_demo.mp4!"
+Write-Host "Master Demo Video with Andrew Voiceover successfully verified and saved to d:\Viking\cipher_demo.mp4 and cipher_demo_2.mp4!"

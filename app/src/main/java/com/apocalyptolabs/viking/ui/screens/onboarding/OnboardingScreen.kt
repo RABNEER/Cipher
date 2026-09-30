@@ -124,7 +124,7 @@ fun OnboardingScreen(
                         Spacer(modifier = Modifier.width(12.dp))
                         Column {
                             Text(
-                                text = "Gemma 270M INT8 Engine Ready",
+                                text = "Gemma 270M INT4 Engine Ready",
                                 style = VikingMonoData,
                                 fontWeight = FontWeight.Bold,
                                 color = VikingWhite

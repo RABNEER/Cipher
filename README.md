@@ -97,7 +97,7 @@ flowchart LR
     end
     subgraph D["Decision Pipeline"]
         R{Static Rule Engine}
-        G[Gemma 270M INT4/INT8]
+        G[Gemma 270M INT4]
     end
     subgraph O["Response"]
         T[(SQLCipher Vault)]

@@ -459,7 +459,7 @@ fun TestResultCard(result: ThreatResult) {
                     )
                 }
                 Text(
-                    text = "GEMMA 270M INT8",
+                    text = "GEMMA 270M INT4",
                     style = VikingLabelCaps,
                     color = VikingMuted
                 )
